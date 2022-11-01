@@ -1,0 +1,529 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://json.webapp.siga.openeid.ee/" version="1.0"
+           targetNamespace="http://json.webapp.siga.openeid.ee/">
+    <xs:element name="createHashcodeContainerRequest" type="tns:createHashcodeContainerRequest"/>
+    <xs:element name="createHashcodeContainerResponse" type="tns:createHashcodeContainerResponse"/>
+    <xs:element name="uploadHashcodeContainerRequest" type="tns:uploadHashcodeContainerRequest"/>
+    <xs:element name="uploadHashcodeContainerResponse" type="tns:uploadHashcodeContainerResponse"/>
+    <xs:element name="createHashcodeContainerValidationReportRequest"
+                type="tns:createHashcodeContainerValidationReportRequest"/>
+    <xs:element name="createHashcodeContainerValidationReportResponse"
+                type="tns:createHashcodeContainerValidationReportResponse"/>
+    <xs:element name="getHashcodeContainerValidationReportResponse"
+                type="tns:getHashcodeContainerValidationReportResponse"/>
+    <xs:element name="createHashcodeContainerRemoteSigningRequest"
+                type="tns:createHashcodeContainerRemoteSigningRequest"/>
+    <xs:element name="createHashcodeContainerRemoteSigningResponse"
+                type="tns:createHashcodeContainerRemoteSigningResponse"/>
+    <xs:element name="updateHashcodeContainerRemoteSigningRequest"
+                type="tns:updateHashcodeContainerRemoteSigningRequest"/>
+    <xs:element name="updateHashcodeContainerRemoteSigningResponse"
+                type="tns:updateHashcodeContainerRemoteSigningResponse"/>
+    <xs:element name="createHashcodeContainerMobileIdSigningRequest"
+                type="tns:createHashcodeContainerMobileIdSigningRequest"/>
+    <xs:element name="createHashcodeContainerMobileIdSigningResponse"
+                type="tns:createHashcodeContainerMobileIdSigningResponse"/>
+    <xs:element name="getHashcodeContainerMobileIdSigningStatusResponse"
+                type="tns:getHashcodeContainerMobileIdSigningStatusResponse"/>
+    <xs:element name="createHashcodeContainerSmartIdCertificateChoiceRequest"
+                type="tns:createHashcodeContainerSmartIdCertificateChoiceRequest"/>
+    <xs:element name="createHashcodeContainerSmartIdCertificateChoiceResponse"
+                type="tns:createHashcodeContainerSmartIdCertificateChoiceResponse"/>
+    <xs:element name="getHashcodeContainerSmartIdCertificateChoiceStatusResponse"
+                type="tns:getHashcodeContainerSmartIdCertificateChoiceStatusResponse"/>
+    <xs:element name="createHashcodeContainerSmartIdSigningRequest"
+                type="tns:createHashcodeContainerSmartIdSigningRequest"/>
+    <xs:element name="createHashcodeContainerSmartIdSigningResponse"
+                type="tns:createHashcodeContainerSmartIdSigningResponse"/>
+    <xs:element name="getHashcodeContainerSmartIdSigningStatusResponse"
+                type="tns:getHashcodeContainerSmartIdSigningStatusResponse"/>
+    <xs:element name="getHashcodeContainerSignaturesResponse" type="tns:getHashcodeContainerSignaturesResponse"/>
+    <xs:element name="getHashcodeContainerSignatureDetailsResponse"
+                type="tns:getContainerSignatureDetailsResponse"/>
+    <xs:element name="createHashcodeContainerDataFileRequest" type="tns:createHashcodeContainerDataFileRequest"/>
+    <xs:element name="createHashcodeContainerDataFileResponse" type="tns:createHashcodeContainerDataFileResponse"/>
+    <xs:element name="getHashcodeContainerDataFilesResponse" type="tns:getHashcodeContainerDataFilesResponse"/>
+    <xs:element name="deleteHashcodeContainerDataFileResponse" type="tns:deleteHashcodeContainerDataFileResponse"/>
+    <xs:element name="getHashcodeContainerResponse" type="tns:getHashcodeContainerResponse"/>
+    <xs:element name="deleteHashcodeContainerResponse" type="tns:deleteHashcodeContainerResponse"/>
+
+    <xs:element name="createContainerRequest" type="tns:createContainerRequest"/>
+    <xs:element name="createContainerResponse" type="tns:createContainerResponse"/>
+    <xs:element name="uploadContainerRequest" type="tns:uploadContainerRequest"/>
+    <xs:element name="uploadContainerResponse" type="tns:uploadContainerResponse"/>
+    <xs:element name="createContainerValidationReportRequest" type="tns:createContainerValidationReportRequest"/>
+    <xs:element name="createContainerValidationReportResponse" type="tns:createContainerValidationReportResponse"/>
+    <xs:element name="getContainerValidationReportResponse" type="tns:getContainerValidationReportResponse"/>
+    <xs:element name="createContainerRemoteSigningRequest" type="tns:createContainerRemoteSigningRequest"/>
+    <xs:element name="createContainerRemoteSigningResponse" type="tns:createContainerRemoteSigningResponse"/>
+    <xs:element name="updateContainerRemoteSigningRequest" type="tns:updateContainerRemoteSigningRequest"/>
+    <xs:element name="updateContainerRemoteSigningResponse" type="tns:updateContainerRemoteSigningResponse"/>
+    <xs:element name="createContainerMobileIdSigningRequest" type="tns:createContainerMobileIdSigningRequest"/>
+    <xs:element name="createContainerMobileIdSigningResponse" type="tns:createContainerMobileIdSigningResponse"/>
+    <xs:element name="getContainerMobileIdSigningStatusResponse" type="tns:getContainerMobileIdSigningStatusResponse"/>
+    <xs:element name="createContainerSmartIdCertificateChoiceRequest"
+                type="tns:createContainerSmartIdCertificateChoiceRequest"/>
+    <xs:element name="createContainerSmartIdCertificateChoiceResponse"
+                type="tns:createContainerSmartIdCertificateChoiceResponse"/>
+    <xs:element name="getContainerSmartIdCertificateChoiceStatusResponse"
+                type="tns:getContainerSmartIdCertificateChoiceStatusResponse"/>
+    <xs:element name="createContainerSmartIdSigningRequest" type="tns:createContainerSmartIdSigningRequest"/>
+    <xs:element name="createContainerSmartIdSigningResponse" type="tns:createContainerSmartIdSigningResponse"/>
+    <xs:element name="getContainerSmartIdSigningStatusResponse" type="tns:getContainerSmartIdSigningStatusResponse"/>
+    <xs:element name="getContainerSignaturesResponse" type="tns:getContainerSignaturesResponse"/>
+    <xs:element name="getContainerSignatureDetailsResponse" type="tns:getContainerSignatureDetailsResponse"/>
+    <xs:element name="createContainerDataFileRequest" type="tns:createContainerDataFileRequest"/>
+    <xs:element name="createContainerDataFileResponse" type="tns:createContainerDataFileResponse"/>
+    <xs:element name="getContainerDataFilesResponse" type="tns:getContainerDataFilesResponse"/>
+    <xs:element name="deleteContainerDataFileResponse" type="tns:deleteContainerDataFileResponse"/>
+    <xs:element name="getContainerResponse" type="tns:getContainerResponse"/>
+    <xs:element name="deleteContainerResponse" type="tns:deleteContainerResponse"/>
+
+    <xs:element name="errorResponse" type="tns:errorResponse"/>
+
+
+    <xs:complexType name="createHashcodeContainerRequest">
+        <xs:sequence>
+            <xs:element name="dataFiles" type="tns:hashcodeDataFile" nillable="true" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="createHashcodeContainerResponse">
+        <xs:sequence>
+            <xs:element name="containerId" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="uploadHashcodeContainerRequest">
+        <xs:sequence>
+            <xs:element name="container" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="uploadHashcodeContainerResponse">
+        <xs:sequence>
+            <xs:element name="containerId" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createHashcodeContainerValidationReportRequest">
+        <xs:sequence>
+            <xs:element name="container" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createHashcodeContainerValidationReportResponse">
+        <xs:sequence>
+            <xs:element name="validationConclusion" type="tns:validationConclusion"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="getHashcodeContainerValidationReportResponse">
+        <xs:sequence>
+            <xs:element name="validationConclusion" type="tns:validationConclusion"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createHashcodeContainerRemoteSigningRequest">
+        <xs:sequence>
+            <xs:element name="signingCertificate" type="xs:string"/>
+            <xs:element name="signatureProfile" type="xs:string"/>
+            <xs:element minOccurs="0" name="roles" maxOccurs="unbounded" type="xs:string"/>
+            <xs:element minOccurs="0" name="signatureProductionPlace" type="tns:signatureProductionPlace"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createHashcodeContainerRemoteSigningResponse">
+        <xs:sequence>
+            <xs:element name="generatedSignatureId" type="xs:string"/>
+            <xs:element name="dataToSign" type="xs:string"/>
+            <xs:element name="digestAlgorithm" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="updateHashcodeContainerRemoteSigningRequest">
+        <xs:sequence>
+            <xs:element name="signatureValue" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="updateHashcodeContainerRemoteSigningResponse">
+        <xs:sequence>
+            <xs:element name="result" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createHashcodeContainerMobileIdSigningRequest">
+        <xs:sequence>
+            <xs:element name="personIdentifier" type="xs:string"/>
+            <xs:element name="phoneNo" type="xs:string"/>
+            <xs:element name="language" type="xs:string"/>
+            <xs:element minOccurs="0" name="messageToDisplay" type="xs:string"/>
+            <xs:element name="signatureProfile" type="xs:string"/>
+            <xs:element minOccurs="0" name="roles" maxOccurs="unbounded" type="xs:string"/>
+            <xs:element minOccurs="0" name="signatureProductionPlace" type="tns:signatureProductionPlace"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createHashcodeContainerMobileIdSigningResponse">
+        <xs:sequence>
+            <xs:element name="generatedSignatureId" type="xs:string"/>
+            <xs:element name="challengeId" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="getHashcodeContainerMobileIdSigningStatusResponse">
+        <xs:sequence>
+            <xs:element name="midStatus" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createHashcodeContainerSmartIdCertificateChoiceRequest">
+        <xs:sequence>
+            <xs:element name="personIdentifier" type="xs:string"/>
+            <xs:element name="country" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createHashcodeContainerSmartIdCertificateChoiceResponse">
+        <xs:sequence>
+            <xs:element name="generatedCertificateId" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="getHashcodeContainerSmartIdCertificateChoiceStatusResponse">
+        <xs:sequence>
+            <xs:element name="sidStatus" type="xs:string"/>
+            <xs:element minOccurs="0" name="documentNumber" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createHashcodeContainerSmartIdSigningRequest">
+        <xs:sequence>
+            <xs:element name="documentNumber" type="xs:string"/>
+            <xs:element minOccurs="0" name="messageToDisplay" type="xs:string"/>
+            <xs:element name="signatureProfile" type="xs:string"/>
+            <xs:element minOccurs="0" name="roles" maxOccurs="unbounded" type="xs:string"/>
+            <xs:element minOccurs="0" name="signatureProductionPlace" type="tns:signatureProductionPlace"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createHashcodeContainerSmartIdSigningResponse">
+        <xs:sequence>
+            <xs:element name="generatedSignatureId" type="xs:string"/>
+            <xs:element name="challengeId" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="getHashcodeContainerSmartIdSigningStatusResponse">
+        <xs:sequence>
+            <xs:element name="sidStatus" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="getHashcodeContainerSignaturesResponse">
+        <xs:sequence>
+            <xs:element minOccurs="0" name="signatures" maxOccurs="unbounded" type="tns:signature"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createHashcodeContainerDataFileRequest">
+        <xs:sequence>
+            <xs:element name="dataFiles" type="tns:hashcodeDataFile" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createHashcodeContainerDataFileResponse">
+        <xs:sequence>
+            <xs:element name="result" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="getHashcodeContainerDataFilesResponse">
+        <xs:sequence>
+            <xs:element name="dataFiles" type="tns:hashcodeDataFile" nillable="true" maxOccurs="unbounded"
+                        minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="deleteHashcodeContainerDataFileResponse">
+        <xs:sequence>
+            <xs:element name="result" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="getHashcodeContainerResponse">
+        <xs:sequence>
+            <xs:element name="container" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="deleteHashcodeContainerResponse">
+        <xs:sequence>
+            <xs:element name="result" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createContainerRequest">
+        <xs:sequence>
+            <xs:element name="containerName" type="xs:string"/>
+            <xs:element name="dataFiles" type="tns:dataFile" nillable="true" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createContainerResponse">
+        <xs:sequence>
+            <xs:element name="containerId" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="uploadContainerRequest">
+        <xs:sequence>
+            <xs:element name="containerName" type="xs:string"/>
+            <xs:element name="container" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="uploadContainerResponse">
+        <xs:sequence>
+            <xs:element name="containerId" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createContainerValidationReportRequest">
+        <xs:sequence>
+            <xs:element name="containerName" type="xs:string"/>
+            <xs:element name="container" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createContainerValidationReportResponse">
+        <xs:sequence>
+            <xs:element name="validationConclusion" type="tns:validationConclusion"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="getContainerValidationReportResponse">
+        <xs:sequence>
+            <xs:element name="validationConclusion" type="tns:validationConclusion"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createContainerRemoteSigningRequest">
+        <xs:sequence>
+            <xs:element name="signingCertificate" type="xs:string"/>
+            <xs:element name="signatureProfile" type="xs:string"/>
+            <xs:element minOccurs="0" name="roles" maxOccurs="unbounded" type="xs:string"/>
+            <xs:element minOccurs="0" name="signatureProductionPlace" type="tns:signatureProductionPlace"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createContainerRemoteSigningResponse">
+        <xs:sequence>
+            <xs:element name="generatedSignatureId" type="xs:string"/>
+            <xs:element name="dataToSign" type="xs:string"/>
+            <xs:element name="digestAlgorithm" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="updateContainerRemoteSigningRequest">
+        <xs:sequence>
+            <xs:element name="signatureValue" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="updateContainerRemoteSigningResponse">
+        <xs:sequence>
+            <xs:element name="result" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createContainerMobileIdSigningRequest">
+        <xs:sequence>
+            <xs:element name="personIdentifier" type="xs:string"/>
+            <xs:element name="phoneNo" type="xs:string"/>
+            <xs:element name="language" type="xs:string"/>
+            <xs:element minOccurs="0" name="messageToDisplay" type="xs:string"/>
+            <xs:element name="signatureProfile" type="xs:string"/>
+            <xs:element minOccurs="0" name="roles" maxOccurs="unbounded" type="xs:string"/>
+            <xs:element minOccurs="0" name="signatureProductionPlace" type="tns:signatureProductionPlace"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createContainerMobileIdSigningResponse">
+        <xs:sequence>
+            <xs:element name="generatedSignatureId" type="xs:string"/>
+            <xs:element name="challengeId" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="getContainerMobileIdSigningStatusResponse">
+        <xs:sequence>
+            <xs:element name="midStatus" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createContainerSmartIdCertificateChoiceRequest">
+        <xs:sequence>
+            <xs:element name="personIdentifier" type="xs:string"/>
+            <xs:element name="country" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createContainerSmartIdCertificateChoiceResponse">
+        <xs:sequence>
+            <xs:element name="generatedCertificateId" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="getContainerSmartIdCertificateChoiceStatusResponse">
+        <xs:sequence>
+            <xs:element name="sidStatus" type="xs:string"/>
+            <xs:element minOccurs="0" name="documentNumber" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createContainerSmartIdSigningRequest">
+        <xs:sequence>
+            <xs:element name="documentNumber" type="xs:string"/>
+            <xs:element minOccurs="0" name="messageToDisplay" type="xs:string"/>
+            <xs:element name="signatureProfile" type="xs:string"/>
+            <xs:element minOccurs="0" name="roles" maxOccurs="unbounded" type="xs:string"/>
+            <xs:element minOccurs="0" name="signatureProductionPlace" type="tns:signatureProductionPlace"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createContainerSmartIdSigningResponse">
+        <xs:sequence>
+            <xs:element name="generatedSignatureId" type="xs:string"/>
+            <xs:element name="challengeId" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="getContainerSmartIdSigningStatusResponse">
+        <xs:sequence>
+            <xs:element name="sidStatus" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="getContainerSignaturesResponse">
+        <xs:sequence>
+            <xs:element minOccurs="0" name="signatures" maxOccurs="unbounded" type="tns:signature"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="getContainerSignatureDetailsResponse">
+        <xs:sequence>
+            <xs:element name="id" type="xs:string"/>
+            <xs:element name="signerInfo" type="xs:string"/>
+            <xs:element name="signatureProfile" type="xs:string"/>
+            <xs:element minOccurs="0" name="ocspCertificate" type="xs:string"/>
+            <xs:element minOccurs="0" name="timeStampTokenCertificate" type="xs:string"/>
+            <xs:element minOccurs="0" name="ocspResponseCreationTime" type="xs:string"/>
+            <xs:element minOccurs="0" name="timeStampCreationTime" type="xs:string"/>
+            <xs:element minOccurs="0" name="trustedSigningTime" type="xs:string"/>
+            <xs:element name="signingCertificate" type="xs:string"/>
+            <xs:element name="claimedSigningTime" type="xs:string"/>
+            <xs:element minOccurs="0" name="roles" maxOccurs="unbounded" type="xs:string"/>
+            <xs:element minOccurs="0" name="signatureProductionPlace" type="tns:signatureProductionPlace"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createContainerDataFileRequest">
+        <xs:sequence>
+            <xs:element name="dataFiles" type="tns:dataFile" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="createContainerDataFileResponse">
+        <xs:sequence>
+            <xs:element name="result" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="getContainerDataFilesResponse">
+        <xs:sequence>
+            <xs:element name="dataFiles" type="tns:dataFile" nillable="true" maxOccurs="unbounded"
+                        minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="deleteContainerDataFileResponse">
+        <xs:sequence>
+            <xs:element name="result" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="getContainerResponse">
+        <xs:sequence>
+            <xs:element name="containerName" type="xs:string"/>
+            <xs:element name="container" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="deleteContainerResponse">
+        <xs:sequence>
+            <xs:element name="result" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="signatureProductionPlace">
+        <xs:sequence>
+            <xs:element minOccurs="0" name="countryName" type="xs:string"/>
+            <xs:element minOccurs="0" name="city" type="xs:string"/>
+            <xs:element minOccurs="0" name="stateOrProvince" type="xs:string"/>
+            <xs:element minOccurs="0" name="postalCode" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="validationConclusion">
+        <xs:sequence>
+            <xs:element name="policy" type="tns:policy"/>
+            <xs:element name="validationTime" type="xs:string"/>
+            <xs:element name="validatedDocument" type="tns:validatedDocumentData"/>
+            <xs:element name="validationLevel" minOccurs="0" type="xs:string"/>
+            <xs:element name="validationWarnings" maxOccurs="unbounded" minOccurs="0" type="tns:validationWarning"/>
+            <xs:element name="signatureForm" minOccurs="0" type="xs:string"/>
+            <xs:element name="signatures" minOccurs="0" maxOccurs="unbounded" type="tns:signatureValidationData"/>
+            <xs:element name="timeStampTokens" minOccurs="0" maxOccurs="unbounded" type="tns:timeStampTokenData"/>
+            <xs:element name="validSignaturesCount" minOccurs="0" type="xs:int"/>
+            <xs:element name="signaturesCount" minOccurs="0" type="xs:int"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="signature">
+        <xs:sequence>
+            <xs:element name="id" type="xs:string"/>
+            <xs:element name="generatedSignatureId" type="xs:string"/>
+            <xs:element name="signerInfo" type="xs:string"/>
+            <xs:element name="signatureProfile" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="policy">
+        <xs:sequence>
+            <xs:element name="policyDescription" type="xs:string"/>
+            <xs:element name="policyName" type="xs:string"/>
+            <xs:element name="policyUrl" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="timeStampTokenData">
+        <xs:sequence>
+            <xs:element name="indication" type="xs:string"/>
+            <xs:element name="signedBy" type="xs:string"/>
+            <xs:element name="signedTime" type="xs:string"/>
+            <xs:element name="errors" minOccurs="0" maxOccurs="unbounded" type="tns:error"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="error">
+        <xs:sequence>
+            <xs:element name="content" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="validatedDocumentData">
+        <xs:sequence>
+            <xs:element name="filename" type="xs:string"/>
+            <xs:element name="fileHash" minOccurs="0" type="xs:string"/>
+            <xs:element name="hashAlgo" minOccurs="0" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="validationWarning">
+        <xs:sequence>
+            <xs:element name="content" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="signatureValidationData">
+        <xs:sequence>
+            <xs:element name="id" type="xs:string"/>
+            <xs:element name="signatureFormat" type="xs:string"/>
+            <xs:element name="signatureLevel" minOccurs="0" type="xs:string"/>
+            <xs:element name="signedBy" type="xs:string"/>
+            <xs:element name="indication" type="xs:string"/>
+            <xs:element name="subIndication" minOccurs="0" type="xs:string"/>
+            <xs:element name="errors" minOccurs="0" maxOccurs="unbounded" type="tns:error"/>
+            <xs:element name="signatureScopes" minOccurs="0" maxOccurs="unbounded" type="tns:signatureScope"/>
+            <xs:element name="claimedSigningTime" type="xs:string"/>
+            <xs:element name="warnings" maxOccurs="unbounded" minOccurs="0" type="tns:warning"/>
+            <xs:element name="info" minOccurs="0" type="tns:info"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="signatureScope">
+        <xs:sequence>
+            <xs:element name="name" minOccurs="0" type="xs:string"/>
+            <xs:element name="scope" minOccurs="0" type="xs:string"/>
+            <xs:element name="content" minOccurs="0" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="warning">
+        <xs:sequence>
+            <xs:element name="content" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="info">
+        <xs:sequence>
+            <xs:element minOccurs="0" name="bestSignatureTime" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="errorResponse">
+        <xs:sequence>
+            <xs:element name="errorCode" type="xs:string"/>
+            <xs:element name="errorMessage" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="hashcodeDataFile">
+        <xs:sequence>
+            <xs:element name="fileName" type="xs:string"/>
+            <xs:element name="fileHashSha256" type="xs:string"/>
+            <xs:element name="fileHashSha512" type="xs:string"/>
+            <xs:element name="fileSize" type="xs:int"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="dataFile">
+        <xs:sequence>
+            <xs:element name="fileName" type="xs:string"/>
+            <xs:element name="fileContent" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>
