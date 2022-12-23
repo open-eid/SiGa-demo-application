@@ -17,6 +17,9 @@ Functionality:
 
 SiGa demo application is not a standalone system, it requires either the [SiGa application](https://github.com/open-eid/SiGa) to already be running on your machine or pointing the demo app towards sample APIs.
 
+**Preconditions**:
+- Java 17 
+
 ### Option 1: Running with SiGa locally
 
 To build the docker image run the following command:
@@ -27,7 +30,7 @@ To build the docker image run the following command:
 
 Then, follow the Docker instructions at [SiGa webapp](https://github.com/open-eid/SiGa) to run both apps at the same time.
 
-If everything was successful, open up the browser at https://localhost:9443.
+If everything was successful, open up the browser at `https://siga-demo.localhost:9443/`.
 
 ### Option 2: Running with external APIs
 
