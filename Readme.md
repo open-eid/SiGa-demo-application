@@ -27,7 +27,7 @@ To build the docker image run the following command:
 
 Then, follow the Docker instructions at [SiGa webapp](https://github.com/open-eid/SiGa) to run both apps at the same time.
 
-If everything was successful, open up the browser at https://localhost:9443.
+If everything was successful, open up the browser at `https://siga-demo.localhost:9443/`.
 
 ### Option 2: Running with external APIs
 
