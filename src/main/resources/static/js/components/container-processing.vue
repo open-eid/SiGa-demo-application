@@ -211,12 +211,14 @@
                         this.$refs.fileDropzone.setOption('autoProcessQueue', true);
                     } else if(this.$data.containerConversionType === 'createHashcodeContainer'){
                         this.$data.mobileSigningForm.containerType = "HASHCODE";
+                        this.$data.smartIdSigningForm.containerType = "HASHCODE";
                         this.$refs.fileDropzone.setOption('url', '/create-hashcode-container');
                         this.$refs.fileDropzone.setOption('maxFiles', '10');
                         this.$refs.fileDropzone.setOption('acceptedFiles', null);
                         this.$refs.fileDropzone.setOption('autoProcessQueue', false);
                     } else {
                         this.$data.mobileSigningForm.containerType = "ASIC";
+                        this.$data.smartIdSigningForm.containerType = "ASIC";
                         this.$refs.fileDropzone.setOption('url', '/create-container');
                         this.$refs.fileDropzone.setOption('maxFiles', '10');
                         this.$refs.fileDropzone.setOption('acceptedFiles', null);
