@@ -324,17 +324,17 @@ public class SigaApiClientService {
 
     @SneakyThrows
     public HashcodeContainerWrapper convertAndUploadHashcodeContainer(Map<String, MultipartFile> fileMap) {
-        HashcodeContainer hashcodeContainer = convertToHashcodeContainer(fileMap);
+        MultipartFile file = fileMap.entrySet().iterator().next().getValue();
+        HashcodeContainer hashcodeContainer = convertToHashcodeContainer(file);
         UploadHashcodeContainerResponse response = uploadHashcodeContainer(hashcodeContainer);
 
         String containerId = response.getContainerId();
         GetHashcodeContainerResponse getContainerResponse = restTemplate.getForObject(getSigaApiUri(HASHCODE_ENDPOINT, containerId), GetHashcodeContainerResponse.class);
         log.info("Uploaded hashcode container with id {}", containerId);
-        return containerService.cacheHashcodeContainer(containerId, containerId + ".asice", Base64.getDecoder().decode(getContainerResponse.getContainer()), hashcodeContainer.getRegularDataFiles());
+        return containerService.cacheHashcodeContainer(containerId, file.getOriginalFilename(), Base64.getDecoder().decode(getContainerResponse.getContainer()), hashcodeContainer.getRegularDataFiles());
     }
 
-    private HashcodeContainer convertToHashcodeContainer(Map<String, MultipartFile> fileMap) throws IOException {
-        MultipartFile file = fileMap.entrySet().iterator().next().getValue();
+    private HashcodeContainer convertToHashcodeContainer(MultipartFile file) throws IOException {
         log.info("Converting container: {}", file.getOriginalFilename());
         return HashcodeContainer.fromRegularContainerBuilder()
                 .container(file.getBytes())
