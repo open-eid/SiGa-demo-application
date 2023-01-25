@@ -25,6 +25,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.annotation.RequestScope;
@@ -568,7 +569,14 @@ public class SigaApiClientService {
 
         @Override
         public void handleError(ClientHttpResponse httpResponse) throws IOException {
-            sendError(format("Unable to process container: {0}, {1}", httpResponse.getStatusCode(), httpResponse.getStatusText()));
+            if (StringUtils.isNotBlank(websocketChannelId)) {
+                sendError(format("Unable to process container: {0}, {1}", httpResponse.getStatusCode(), httpResponse.getStatusText()));
+            } else {
+                throw new HttpClientErrorException(
+                    httpResponse.getStatusCode(), 
+                    new String(httpResponse.getBody().readAllBytes())
+                );
+            }
         }
     }
 }
