@@ -569,9 +569,11 @@ public class SigaApiClientService {
 
         @Override
         public void handleError(ClientHttpResponse httpResponse) throws IOException {
-            if (StringUtils.isNotBlank(websocketChannelId)) {
+            try {
                 sendError(format("Unable to process container: {0}, {1}", httpResponse.getStatusCode(), httpResponse.getStatusText()));
-            } else {
+            } catch (RuntimeException ex) {
+                // happens when websocket is not yet initaited
+                // propagate http error to client
                 throw new HttpClientErrorException(
                     httpResponse.getStatusCode(), 
                     new String(httpResponse.getBody().readAllBytes())
