@@ -45,6 +45,18 @@ siga.client.hmac.service-uuid=a7fd7728-a3ea-4975-bfab-f240a67e894f
 siga.client.hmac.shared-signing-key=746573745365637265744b6579303031
 ```
 
+### SiGa demo configuration
+
+Example `application.properties` file can be seen [here](src/main/resources/application.properties).
+Common Spring Boot properties are described [here](https://docs.spring.io/spring-boot/docs/2.7.8/reference/html/application-properties.html).
+
+
+| Parameter                                  | Mandatory | Description       | Example |
+|--------------------------------------------|-----------|-------------------|---------|
+| spring.servlet.multipart.max-file-size     | N         | Max file size.    | `20MB`  |
+| spring.servlet.multipart.max-request-size  | N         | Max request size. | `35MB`  |
+
+
 ## How to use
 
 With Docker setup, Signature Gateway is in TEST mode. Meaning it is possible to sign only with TEST ID-card, TEST Mobile-ID or TEST Smart-ID.
