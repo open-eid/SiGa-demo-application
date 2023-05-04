@@ -34,16 +34,35 @@ If everything was successful, open up the browser at `https://siga-demo.localhos
 
 ### Option 2: Running with external APIs
 
-To run the application with external APIs, open up the [application.properties](https://github.com/open-eid/SiGa-demo-application/blob/master/src/main/resources/application.properties) file and change the following properties accordingly:
+1. Open up the [application.properties](https://github.com/open-eid/SiGa-demo-application/blob/master/src/main/resources/application.properties)
+   file and change the following properties accordingly:
 
 ```
 siga.api.uri=https://siga.localhost:8443/siga
-siga.api.trustStore=classpath:siga_server_truststore.p12
+siga.api.trustStore=file:C:/.../src/main/resources/siga_server_truststore.p12
 siga.api.trustStorePassword=changeit
 siga.client.hmac.algorithm=HmacSHA256
 siga.client.hmac.service-uuid=a7fd7728-a3ea-4975-bfab-f240a67e894f
 siga.client.hmac.shared-signing-key=746573745365637265744b6579303031
 ```
+
+| Parameter           | Description                                                                                | Example                                                                               |
+|---------------------|--------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| siga.api.uri        | SIGA server URL (without slash symbol in the end)                                          | `https://siga.localhost:8443/siga`                                                    |
+| siga.api.trustStore | Location of the trustore containing servers certificate or CA (path without quotes symbol) | `file:C:/.../SiGa-demo-application/src/main/resources/siga_dev_server_truststore.p12` |
+
+2. Build this project
+```bash
+./mvnw clean install
+```
+
+3. Run compiled JAR (found in target folder)
+```bash
+java -jar siga-demo-application-X.X.X.jar
+```
+
+Now application is accessible at https://siga-demo.localhost:9443/.
+
 
 ### SiGa demo configuration
 
@@ -58,6 +77,8 @@ Common Spring Boot properties are described [here](https://docs.spring.io/spring
 
 
 ## How to use
+
+Before every signing the webapage needs to be reloaded and files uploaded.
 
 With Docker setup, Signature Gateway is in TEST mode. Meaning it is possible to sign only with TEST ID-card, TEST Mobile-ID or TEST Smart-ID.
 
