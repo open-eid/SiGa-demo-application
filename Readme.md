@@ -39,23 +39,23 @@ If everything was successful, open up the browser at `https://siga-demo.localhos
 
 ### Option 2: Running with external APIs
 
-1. Open up
-   the [application.properties](https://github.com/open-eid/SiGa-demo-application/blob/master/src/main/resources/application.properties)
+1. Open up the
+   [application.properties](https://github.com/open-eid/SiGa-demo-application/blob/master/src/main/resources/application.properties)
    file and change the following properties accordingly:
 
 ```
 siga.api.uri=https://siga.localhost:8443/siga
-siga.api.trustStore=file:C:/.../src/main/resources/siga_server_truststore.p12
+siga.api.trustStore=file:/path/to/siga_server_truststore.p12
 siga.api.trustStorePassword=changeit
 siga.client.hmac.algorithm=HmacSHA256
 siga.client.hmac.service-uuid=a7fd7728-a3ea-4975-bfab-f240a67e894f
 siga.client.hmac.shared-signing-key=746573745365637265744b6579303031
 ```
 
-| Parameter           | Description                                                                                | Example                                                                               |
-|---------------------|--------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
-| siga.api.uri        | SIGA server URL (without slash symbol in the end)                                          | `https://siga.localhost:8443/siga`                                                    |
-| siga.api.trustStore | Location of the trustore containing servers certificate or CA (path without quotes symbol) | `file:C:/.../SiGa-demo-application/src/main/resources/siga_dev_server_truststore.p12` |
+| Parameter           | Description | Example |
+|---------------------|-------------|---------|
+| siga.api.uri        | SIGA server URL (without slash symbol in the end) | `https://siga.localhost:8443/siga` |
+| siga.api.trustStore | Location of the trustore containing servers certificate or CA (path without quotes symbol) | `file:/path/to/siga_server_truststore.p12` |
 
 2. Build this project
 
