@@ -187,16 +187,6 @@
             <artifactId>highlightjs</artifactId>
             <version>9.12.0</version>
         </dependency>
-        <dependency>
-            <groupId>org.webjars.bowergithub.hwcrypto</groupId>
-            <artifactId>hwcrypto.js</artifactId>
-            <version>0.0.11</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.bowergithub.beatgammit</groupId>
-            <artifactId>base64-js</artifactId>
-            <version>1.5.1</version>
-        </dependency>
 
         <dependency>
             <groupId>org.junit.vintage</groupId>

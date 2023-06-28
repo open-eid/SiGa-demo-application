@@ -9,7 +9,7 @@ Functionality:
 * Authorization
 * Container conversion to and from HASHCODE form
 * Mobile-ID signing
-* ID card signing (with HWCrypto in front end)
+* ID card signing (with Web eID in front end)
 * Smart-ID signing
 * Signature validation
 
