@@ -6,5 +6,5 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class PrepareRemoteSigningRequest extends SigningRequest {
-    private String certificate;
+    private byte[] certificate;
 }

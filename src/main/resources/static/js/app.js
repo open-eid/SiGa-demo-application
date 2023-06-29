@@ -4,7 +4,8 @@ requirejs.config({
         "vue": "https://cdn.jsdelivr.net/npm/require-vuejs@1.1.3/dist/require-vuejs.min",
         "vue-dropzone": "/webjars/vue2-dropzone/dist/vue2Dropzone",
         "vue-bootstrap": "/webjars/bootstrap-vue/dist/bootstrap-vue.min",
-        "axios": "/webjars/axios/dist/axios"
+        "axios": "/webjars/axios/dist/axios",
+        "base64js": "/webjars/base64-js/base64js.min"
     },
     shim: {
         "Vue": {"exports": "Vue"}

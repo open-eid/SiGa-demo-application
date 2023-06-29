@@ -123,7 +123,7 @@
 </template>
 
 <script>
-    define(["Vue", "vue-dropzone", "axios"], function (Vue, VueDropzone, axios) {
+    define(["Vue", "vue-dropzone", "axios", "base64js"], function (Vue, VueDropzone, axios, base64js) {
         return Vue.component("siga-container-processing", {
             template: template,
             components: {
@@ -232,24 +232,19 @@
                 onIdCardSign: function () {
                     this.$data.downloadUnsignedContainerAllowed = false;
                     let form = this.$data.mobileSigningForm;
-                    let certificate = null;
+                    let hwcCertificate = null;
 
-                    webeid.getSigningCertificate({lang: 'en'}).then(function (signingCertificate) {
-                        certificate = signingCertificate.certificate;
-                        form.certificate = certificate;
+                    window.hwcrypto.getCertificate({lang: 'en'}).then(function (certificate) {
+                        form.certificate = Array.prototype.slice.call(certificate.encoded);
+                        hwcCertificate = certificate;
                         return axios.post('/prepare-remote-signing', form);
                     }).then(function (response) {
                         form.signatureId = response.data.generatedSignatureId;
-                        return webeid.sign(certificate, response.data.dataToSignHash, response.data.digestAlgorithm, {lang: 'en'});
-                    }).then(function (webEidSignResult) {
-                        form.signature = webEidSignResult.signature;
+                        let dataToSignHash = new Uint8Array(base64js.toByteArray(response.data.dataToSignHash));
+                        return window.hwcrypto.sign(hwcCertificate, {type: response.data.digestAlgorithm, value: dataToSignHash}, {lang: 'en'});
+                    }).then(function (signature) {
+                        form.signature = Array.prototype.slice.call(signature.value);
                         return axios.post('/finalize-remote-signing', form);
-                    }).catch(function(error) {
-                      if (error.code === 'ERR_WEBEID_USER_CANCELLED') {
-                        console.log('User cancelled signing.');
-                      } else {
-                        console.error("Signing failed.", error)
-                      }
                     });
                 }
             },
