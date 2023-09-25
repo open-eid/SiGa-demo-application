@@ -211,7 +211,7 @@ public class SigaApiClientService {
 
     private CreateHashcodeContainerRemoteSigningRequest createHashcodeContainerRemoteSigningRequest(PrepareRemoteSigningRequest prepareRemoteSigningRequest) {
         CreateHashcodeContainerRemoteSigningRequest request = new CreateHashcodeContainerRemoteSigningRequest();
-        request.setSigningCertificate(encodeBase64String(prepareRemoteSigningRequest.getCertificate()));
+        request.setSigningCertificate(prepareRemoteSigningRequest.getCertificate());
         request.setSignatureProfile(SIGNATURE_PROFILE_LT);
         return request;
     }
@@ -229,7 +229,7 @@ public class SigaApiClientService {
 
     private CreateContainerRemoteSigningRequest createAsicContainerRemoteSigningRequest(PrepareRemoteSigningRequest prepareRemoteSigningRequest) {
         CreateContainerRemoteSigningRequest request = new CreateContainerRemoteSigningRequest();
-        request.setSigningCertificate(encodeBase64String(prepareRemoteSigningRequest.getCertificate()));
+        request.setSigningCertificate(prepareRemoteSigningRequest.getCertificate());
         request.setSignatureProfile(SIGNATURE_PROFILE_LT);
         return request;
     }
