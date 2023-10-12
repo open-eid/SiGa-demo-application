@@ -83,7 +83,7 @@ class HashcodeContainerWriter {
     public void writeManifest(List<HashcodeDataFile> hashcodeDataFiles) {
         List<DataFile> dataFiles = convertDataFiles(hashcodeDataFiles);
         final AsicManifest asicManifest = new AsicManifest(Container.DocumentType.ASICE.name());
-        asicManifest.addFileEntry(dataFiles);
+        asicManifest.addFileEntries(dataFiles);
         new EntryCallback(new ZipEntry(AsicManifest.XML_PATH)) {
             @Override
             void doWithEntryStream(OutputStream stream) {
