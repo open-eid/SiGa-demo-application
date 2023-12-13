@@ -60,9 +60,7 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuil
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
-import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -105,7 +103,7 @@ public class SigaApiClientService {
     private static final String SIGNATURE_PROFILE_LT = "LT";
     private final ContainerService containerService;
     private final SimpMessageSendingOperations messagingTemplate;
-    private final ResourceLoader resourceLoader;
+    private final SSLContext sigaApiSslContext;
     private final RestTemplateBuilder restTemplateBuilder;
     private final SiGaDemoProperties sigaProperties;
     private RestTemplate restTemplate;
@@ -114,12 +112,7 @@ public class SigaApiClientService {
     @SneakyThrows
     @PostConstruct
     private void setUpRestTemplate() {
-        SSLContext sslContext = new SSLContextBuilder()
-                .loadTrustMaterial(resourceLoader.getResource(sigaProperties.api().trustStore()).getFile(),
-                        sigaProperties.api().trustStorePassword().toCharArray())
-                .build();
-
-        SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE);
+        SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sigaApiSslContext, NoopHostnameVerifier.INSTANCE);
         HttpClientConnectionManager connectionManager = PoolingHttpClientConnectionManagerBuilder.create()
                 .setSSLSocketFactory(socketFactory)
                 .build();

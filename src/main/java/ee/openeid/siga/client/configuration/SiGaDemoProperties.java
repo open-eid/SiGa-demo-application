@@ -1,6 +1,7 @@
 package ee.openeid.siga.client.configuration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.core.io.Resource;
 
 @ConfigurationProperties(prefix = "siga")
 public record SiGaDemoProperties(SigaClient client, SigaApi api) {
@@ -14,7 +15,12 @@ public record SiGaDemoProperties(SigaClient client, SigaApi api) {
     }
 
     @ConfigurationProperties(prefix = "siga.api")
-    public record SigaApi(String uri, String trustStore, String trustStorePassword) {
+    public record SigaApi(
+            String uri,
+            Resource trustStore,
+            char[] trustStorePassword,
+            String trustStoreType
+    ) {
         @Override
         public String uri() {
             return uri + "/";
