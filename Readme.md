@@ -22,17 +22,17 @@ towards sample APIs.
 
 **Preconditions**:
 
-- Java 17
+1. **Java JDK 17** - to compile and run SiVa demo
+2. **SiVa parent project** - Can be found [here](https://github.com/open-eid/SiGa)
 
-### Option 1: Running with SiGa locally
+### Option 1: Running SiGa locally with Docker
 
-To build the docker image run the following command:
-
+1. Docker must be installed and running.
+2. Build SiGa demo application docker image:
 ```
-./mvnw spring-boot:build-image
+./mvnw clean spring-boot:build-image
 ```
-
-Then, follow the Docker instructions at [SiGa webapp](https://github.com/open-eid/SiGa) to run both apps at the same
+3. Then, follow the "Running SiGa with Docker" instructions at [SiGa webapp](https://github.com/open-eid/SiGa) to run both apps at the same
 time.
 
 If everything was successful, open up the browser at `https://siga-demo.localhost:9443/`.
