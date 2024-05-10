@@ -3,20 +3,64 @@ package ee.openeid.siga.client.service;
 import ee.openeid.siga.client.configuration.SiGaDemoProperties;
 import ee.openeid.siga.client.hashcode.HashcodeContainer;
 import ee.openeid.siga.client.hmac.HmacTokenAuthorizationHeaderInterceptor;
+import ee.openeid.siga.client.model.AsicContainerWrapper;
+import ee.openeid.siga.client.model.FinalizeRemoteSigningRequest;
 import ee.openeid.siga.client.model.GetContainerMobileIdSigningStatusResponse;
-import ee.openeid.siga.client.model.*;
-import ee.openeid.siga.webapp.json.*;
+import ee.openeid.siga.client.model.HashcodeContainerWrapper;
+import ee.openeid.siga.client.model.MobileSigningRequest;
+import ee.openeid.siga.client.model.PrepareRemoteSigningRequest;
+import ee.openeid.siga.client.model.PrepareRemoteSigningResponse;
+import ee.openeid.siga.client.model.ProcessingStatus;
+import ee.openeid.siga.client.model.SmartIdCertificateChoiceStatusResponseWrapper;
+import ee.openeid.siga.client.model.SmartIdSigningRequest;
+import ee.openeid.siga.webapp.json.CreateContainerMobileIdSigningRequest;
+import ee.openeid.siga.webapp.json.CreateContainerMobileIdSigningResponse;
+import ee.openeid.siga.webapp.json.CreateContainerRemoteSigningRequest;
+import ee.openeid.siga.webapp.json.CreateContainerRemoteSigningResponse;
+import ee.openeid.siga.webapp.json.CreateContainerRequest;
+import ee.openeid.siga.webapp.json.CreateContainerResponse;
+import ee.openeid.siga.webapp.json.CreateContainerSmartIdCertificateChoiceRequest;
+import ee.openeid.siga.webapp.json.CreateContainerSmartIdCertificateChoiceResponse;
+import ee.openeid.siga.webapp.json.CreateContainerSmartIdSigningRequest;
+import ee.openeid.siga.webapp.json.CreateContainerSmartIdSigningResponse;
+import ee.openeid.siga.webapp.json.CreateHashcodeContainerMobileIdSigningRequest;
+import ee.openeid.siga.webapp.json.CreateHashcodeContainerMobileIdSigningResponse;
+import ee.openeid.siga.webapp.json.CreateHashcodeContainerRemoteSigningRequest;
+import ee.openeid.siga.webapp.json.CreateHashcodeContainerRemoteSigningResponse;
+import ee.openeid.siga.webapp.json.CreateHashcodeContainerRequest;
+import ee.openeid.siga.webapp.json.CreateHashcodeContainerResponse;
+import ee.openeid.siga.webapp.json.CreateHashcodeContainerSmartIdCertificateChoiceRequest;
+import ee.openeid.siga.webapp.json.CreateHashcodeContainerSmartIdCertificateChoiceResponse;
+import ee.openeid.siga.webapp.json.CreateHashcodeContainerSmartIdSigningRequest;
+import ee.openeid.siga.webapp.json.CreateHashcodeContainerSmartIdSigningResponse;
+import ee.openeid.siga.webapp.json.DeleteContainerResponse;
+import ee.openeid.siga.webapp.json.DeleteHashcodeContainerResponse;
+import ee.openeid.siga.webapp.json.GetContainerResponse;
+import ee.openeid.siga.webapp.json.GetContainerSignaturesResponse;
+import ee.openeid.siga.webapp.json.GetContainerSmartIdCertificateChoiceStatusResponse;
+import ee.openeid.siga.webapp.json.GetContainerSmartIdSigningStatusResponse;
+import ee.openeid.siga.webapp.json.GetContainerValidationReportResponse;
+import ee.openeid.siga.webapp.json.GetHashcodeContainerResponse;
+import ee.openeid.siga.webapp.json.GetHashcodeContainerSignaturesResponse;
+import ee.openeid.siga.webapp.json.GetHashcodeContainerValidationReportResponse;
+import ee.openeid.siga.webapp.json.UpdateContainerRemoteSigningRequest;
+import ee.openeid.siga.webapp.json.UpdateContainerRemoteSigningResponse;
+import ee.openeid.siga.webapp.json.UpdateHashcodeContainerRemoteSigningRequest;
+import ee.openeid.siga.webapp.json.UpdateHashcodeContainerRemoteSigningResponse;
+import ee.openeid.siga.webapp.json.UploadHashcodeContainerRequest;
+import ee.openeid.siga.webapp.json.UploadHashcodeContainerResponse;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.HttpClient;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.io.HttpClientConnectionManager;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +75,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.PostConstruct;
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.util.Base64;
@@ -42,8 +85,10 @@ import java.util.Map;
 import static ee.openeid.siga.client.hashcode.HashcodesDataFileCreator.createHashcodeDataFile;
 import static java.text.MessageFormat.format;
 import static org.apache.tomcat.util.codec.binary.Base64.encodeBase64String;
-import static org.springframework.http.HttpMethod.*;
-import static org.springframework.http.HttpStatus.Series.SUCCESSFUL;
+import static org.springframework.http.HttpMethod.DELETE;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 
 @Slf4j
@@ -58,7 +103,7 @@ public class SigaApiClientService {
     private static final String SIGNATURE_PROFILE_LT = "LT";
     private final ContainerService containerService;
     private final SimpMessageSendingOperations messagingTemplate;
-    private final ResourceLoader resourceLoader;
+    private final SSLContext sigaApiSslContext;
     private final RestTemplateBuilder restTemplateBuilder;
     private final SiGaDemoProperties sigaProperties;
     private RestTemplate restTemplate;
@@ -67,13 +112,12 @@ public class SigaApiClientService {
     @SneakyThrows
     @PostConstruct
     private void setUpRestTemplate() {
-        SSLContext sslContext = new SSLContextBuilder()
-                .loadTrustMaterial(resourceLoader.getResource(sigaProperties.api().trustStore()).getFile(),
-                        sigaProperties.api().trustStorePassword().toCharArray())
+        SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sigaApiSslContext, NoopHostnameVerifier.INSTANCE);
+        HttpClientConnectionManager connectionManager = PoolingHttpClientConnectionManagerBuilder.create()
+                .setSSLSocketFactory(socketFactory)
                 .build();
 
-        SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE);
-        HttpClient httpClient = HttpClients.custom().setSSLSocketFactory(socketFactory).build();
+        HttpClient httpClient = HttpClients.custom().setConnectionManager(connectionManager).build();
         SiGaDemoProperties.Hmac hmac = sigaProperties.client().hmac();
         restTemplate = restTemplateBuilder
                 .requestFactory(() -> new HttpComponentsClientHttpRequestFactory(httpClient))
@@ -564,7 +608,7 @@ public class SigaApiClientService {
         @Override
         public boolean hasError(ClientHttpResponse httpResponse) throws IOException {
             log.info("HttpResponse: {}, {}", httpResponse.getStatusCode(), httpResponse.getStatusText());
-            return (httpResponse.getStatusCode().series() != SUCCESSFUL);
+            return !httpResponse.getStatusCode().is2xxSuccessful();
         }
 
         @Override

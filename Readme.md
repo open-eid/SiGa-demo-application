@@ -22,17 +22,17 @@ towards sample APIs.
 
 **Preconditions**:
 
-- Java 17
+1. **Java JDK 17** - to compile and run SiVa demo
+2. **SiVa parent project** - Can be found [here](https://github.com/open-eid/SiGa)
 
-### Option 1: Running with SiGa locally
+### Option 1: Running SiGa locally with Docker
 
-To build the docker image run the following command:
-
+1. Docker must be installed and running.
+2. Build SiGa demo application docker image:
 ```
-./mvnw spring-boot:build-image
+./mvnw clean spring-boot:build-image
 ```
-
-Then, follow the Docker instructions at [SiGa webapp](https://github.com/open-eid/SiGa) to run both apps at the same
+3. Then, follow the "Running SiGa with Docker" instructions at [SiGa webapp](https://github.com/open-eid/SiGa) to run both apps at the same
 time.
 
 If everything was successful, open up the browser at `https://siga-demo.localhost:9443/`.
@@ -45,8 +45,9 @@ If everything was successful, open up the browser at `https://siga-demo.localhos
 
 ```
 siga.api.uri=https://siga.localhost:8443/siga
-siga.api.trustStore=file:/path/to/siga_server_truststore.p12
-siga.api.trustStorePassword=changeit
+siga.api.trust-store=file:/path/to/siga_server_truststore.p12
+siga.api.trust-store-password=changeit
+siga.api.trust-store-type=PKCS12
 siga.client.hmac.algorithm=HmacSHA256
 siga.client.hmac.service-uuid=a7fd7728-a3ea-4975-bfab-f240a67e894f
 siga.client.hmac.shared-signing-key=746573745365637265744b6579303031
@@ -55,7 +56,9 @@ siga.client.hmac.shared-signing-key=746573745365637265744b6579303031
 | Parameter           | Description | Example |
 |---------------------|-------------|---------|
 | siga.api.uri        | SIGA server URL (without slash symbol in the end) | `https://siga.localhost:8443/siga` |
-| siga.api.trustStore | Location of the trustore containing servers certificate or CA (path without quotes symbol) | `file:/path/to/siga_server_truststore.p12` |
+| siga.api.trust-store | Location of the trustore containing server's certificate or CA (path without quotes symbol) | `classpath:siga_server_truststore.p12` or `file:/path/to/siga_server_truststore.p12` |
+| siga.api.trust-store-password | Password of the trustore containing server's certificate or CA. | `changeit` |
+| siga.api.trust-store-type | Type of the trustore containing server's certificate or CA. Defaults to system default if not provided. | `PKCS12` |
 
 2. Build this project
 
