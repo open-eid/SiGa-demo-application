@@ -8,22 +8,23 @@
         <b-row>
             <b-col lg>
                 <div class="card">
-                    <h5 class="card-header">Container upload and conversion to hashcode format</h5>
+                    <h5 class="card-header">Container upload, conversion to hashcode format and augmentation</h5>
                     <div class="card-body">
                         <b-form-group>
                             <b-form-radio v-model="containerConversionType" value="convertContainer">Convert ASIC container to HASHCODE container and upload</b-form-radio>
                             <b-form-radio v-model="containerConversionType" value="createContainer">Create ASIC container from files</b-form-radio>
-                            <b-form-radio v-model="containerConversionType" value="createHashcodeContainer" v-on:input="onChangeConversionType">Create HASHCODE container from files</b-form-radio>
+                            <b-form-radio v-model="containerConversionType" value="createHashcodeContainer">Create HASHCODE container from files</b-form-radio>
+                            <b-form-radio v-model="containerConversionType" value="uploadAsicContainer" v-on:input="onChangeConversionType">Upload ASIC container</b-form-radio>
                         </b-form-group>
                         <b-container>
                             <b-row>
                                 <b-col>
-                                    <h6 v-if="!containerConverted && containerConversionType === 'convertContainer'">Upload container</h6>
+                                    <h6 v-if="!containerConverted && (containerConversionType === 'convertContainer' || containerConversionType === 'uploadAsicContainer')">Upload container</h6>
                                     <h6 v-if="!containerConverted && containerConversionType === 'createHashcodeContainer'">Upload any type of files to create new hashcode container</h6>
                                     <h6 v-if="!containerConverted && containerConversionType === 'createContainer'">Upload any type of files to create new container</h6>
                                 </b-col>
                                 <b-col cols="auto" align-self="end">
-                                    <b-button v-if="!containerConverted && containerConversionType != 'convertContainer'" v-b-toggle.collapse-ms variant="primary" size="sm" v-on:click="onCreateContainer">Upload files</b-button>
+                                    <b-button v-if="!containerConverted && containerConversionType != 'convertContainer'" v-b-toggle.collapse-ms variant="primary" size="sm" v-on:click="onCreateOrUploadContainer">Upload files</b-button>
                                 </b-col>
                             </b-row>
                         </b-container>
@@ -31,7 +32,7 @@
                             {{ dropzoneError }}
                         </b-alert>
                         <vue-dropzone id="filedropzone" v-if="!containerConverted" ref="fileDropzone" :options="dropzoneOptions" v-on:vdropzone-success-multiple="onUploadContainerSuccess" v-on:vdropzone-error="onDropzoneError"></vue-dropzone>
-                        <b-button target="_blank" v-if="downloadUnsignedContainerAllowed && containerConverted && containerConversionType != 'createContainer'" v-bind:href="downloadHashcodeUrl" size="sm">Download unsigned hashcode container</b-button>
+                        <b-button target="_blank" v-if="downloadUnsignedContainerAllowed && containerConverted && (containerConversionType === 'createHashcodeContainer' || containerConversionType === 'convertContainer')" v-bind:href="downloadHashcodeUrl" size="sm">Download unsigned hashcode container</b-button>
                     </div>
                 </div>
             </b-col>
@@ -89,6 +90,9 @@
                                   </b-row>
                                 </b-container>
                               </b-collapse>
+                            </b-tab>
+                            <b-tab title="Augmentation" v-if="containerConversionType === 'uploadAsicContainer'">
+                                <b-button variant="primary" size="sm" v-on:click="onAugmentation">Augment</b-button>
                             </b-tab>
                         </b-tabs>
 
@@ -155,6 +159,7 @@
                         {value: 'LV', text: 'LV'},
                         {value: 'LT', text: 'LT'}
                     ],
+                    containerIdForAugmentation: null,
                     dropzoneErrorCountdown: 0,
                     dropzoneError: null,
                     dropzoneOptions: {
@@ -171,7 +176,7 @@
                 };
             },
             methods: {
-                onCreateContainer: function () {
+                onCreateOrUploadContainer: function () {
                     this.$refs.fileDropzone.processQueue();
                 },
                 onUploadContainerSuccess: function (files, response) {
@@ -181,6 +186,7 @@
                     this.$data.downloadRegularUrl = '/download/regular/' + this.$data.mobileSigningForm.containerType + '/' + response.id;
                     this.$data.mobileSigningForm.containerId = response.id;
                     this.$data.smartIdSigningForm.containerId = response.id;
+                    this.$data.containerIdForAugmentation = response.id;
                     this.$data.containerConverted = true;
                     let processingSteps = this.$data.processingSteps;
                     this.stompClient.subscribe('/progress/' + response.id, function (message) {
@@ -196,6 +202,13 @@
                     evt.preventDefault();
                     this.$data.downloadUnsignedContainerAllowed = false;
                     axios.post('/smartid-signing', this.$data.smartIdSigningForm);
+                },
+                onAugmentation: function(evt) {
+                    evt.preventDefault();
+                    this.$data.downloadUnsignedContainerAllowed = false;
+                    axios.post('/augment-container', {
+                        containerId: this.$data.containerIdForAugmentation
+                    });
                 },
                 onDropzoneError: function (file, message, xhr) {
                     this.$refs.fileDropzone.removeFile(file);
@@ -219,12 +232,20 @@
                         this.$refs.fileDropzone.setOption('parallelUploads', 10);
                         this.$refs.fileDropzone.setOption('acceptedFiles', null);
                         this.$refs.fileDropzone.setOption('autoProcessQueue', false);
-                    } else {
+                    } else if(this.$data.containerConversionType === 'createContainer'){
                         this.$data.mobileSigningForm.containerType = "ASIC";
                         this.$data.smartIdSigningForm.containerType = "ASIC";
                         this.$refs.fileDropzone.setOption('url', '/create-container');
                         this.$refs.fileDropzone.setOption('maxFiles', 10);
                         this.$refs.fileDropzone.setOption('parallelUploads', 10);
+                        this.$refs.fileDropzone.setOption('acceptedFiles', null);
+                        this.$refs.fileDropzone.setOption('autoProcessQueue', false);
+                    } else {
+                        this.$data.mobileSigningForm.containerType = "ASIC";
+                        this.$data.smartIdSigningForm.containerType = "ASIC";
+                        this.$refs.fileDropzone.setOption('url', '/upload-container');
+                        this.$refs.fileDropzone.setOption('maxFiles', 1);
+                        this.$refs.fileDropzone.setOption('parallelUploads', 1);
                         this.$refs.fileDropzone.setOption('acceptedFiles', null);
                         this.$refs.fileDropzone.setOption('autoProcessQueue', false);
                     }
