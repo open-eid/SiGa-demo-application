@@ -36,7 +36,7 @@ public class MainController {
     @ResponseBody
     public HashcodeContainerWrapper convertContainerToHashcodeContainer(MultipartHttpServletRequest request) {
         Map<String, MultipartFile> fileMap = request.getFileMap();
-        log.info("Nr of files uploaded: {}", fileMap.size());
+        log.info("Number of files uploaded: {}", fileMap.size());
         return sigaApiClientService.convertAndUploadHashcodeContainer(fileMap);
     }
 
@@ -45,7 +45,7 @@ public class MainController {
     @SneakyThrows
     public HashcodeContainerWrapper createHashcodeContainerFromFiles(MultipartHttpServletRequest request) {
         Map<String, MultipartFile> fileMap = request.getFileMap();
-        log.info("Nr of files uploaded: {}", fileMap.size());
+        log.info("Number of files uploaded: {}", fileMap.size());
         return sigaApiClientService.createHashcodeContainer(fileMap.values());
     }
 
@@ -54,8 +54,17 @@ public class MainController {
     @SneakyThrows
     public AsicContainerWrapper createContainerFromFiles(MultipartHttpServletRequest request) {
         Map<String, MultipartFile> fileMap = request.getFileMap();
-        log.info("Nr of files uploaded: {}", fileMap.size());
+        log.info("Number of files uploaded: {}", fileMap.size());
         return sigaApiClientService.createAsicContainer(fileMap.values());
+    }
+
+    @PostMapping(value = "/upload-container", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseBody
+    @SneakyThrows
+    public AsicContainerWrapper uploadAsicContainer(MultipartHttpServletRequest request) {
+        Map<String, MultipartFile> fileMap = request.getFileMap();
+        log.info("Number of files uploaded: {}", fileMap.size());
+        return sigaApiClientService.uploadAsicContainer(fileMap);
     }
 
     @GetMapping(value = "/download/hashcode/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)

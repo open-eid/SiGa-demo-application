@@ -22,7 +22,7 @@ import java.util.zip.ZipOutputStream;
 class HashcodeContainerWriter {
 
     public static final String SIGNATURE_FILE_PREFIX = "META-INF/signatures";
-    private static final String ZIP_ENTRY_MIMETYPE = "mimetype";
+    public static final String ZIP_ENTRY_MIMETYPE = "mimetype";
     private static final String SIGNATURE_FILE_EXTENSION = ".xml";
     private final ZipOutputStream zipOutputStream;
 

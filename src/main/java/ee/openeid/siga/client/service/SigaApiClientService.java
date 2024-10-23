@@ -13,6 +13,7 @@ import ee.openeid.siga.client.model.PrepareRemoteSigningResponse;
 import ee.openeid.siga.client.model.ProcessingStatus;
 import ee.openeid.siga.client.model.SmartIdCertificateChoiceStatusResponseWrapper;
 import ee.openeid.siga.client.model.SmartIdSigningRequest;
+import ee.openeid.siga.webapp.json.AugmentContainerSignaturesResponse;
 import ee.openeid.siga.webapp.json.CreateContainerMobileIdSigningRequest;
 import ee.openeid.siga.webapp.json.CreateContainerMobileIdSigningResponse;
 import ee.openeid.siga.webapp.json.CreateContainerRemoteSigningRequest;
@@ -47,6 +48,8 @@ import ee.openeid.siga.webapp.json.UpdateContainerRemoteSigningRequest;
 import ee.openeid.siga.webapp.json.UpdateContainerRemoteSigningResponse;
 import ee.openeid.siga.webapp.json.UpdateHashcodeContainerRemoteSigningRequest;
 import ee.openeid.siga.webapp.json.UpdateHashcodeContainerRemoteSigningResponse;
+import ee.openeid.siga.webapp.json.UploadContainerRequest;
+import ee.openeid.siga.webapp.json.UploadContainerResponse;
 import ee.openeid.siga.webapp.json.UploadHashcodeContainerRequest;
 import ee.openeid.siga.webapp.json.UploadHashcodeContainerResponse;
 import jakarta.annotation.PostConstruct;
@@ -60,6 +63,12 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuil
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.digidoc4j.Container;
+import org.digidoc4j.ContainerBuilder;
+import org.digidoc4j.ContainerOpener;
+import org.digidoc4j.impl.asic.AsicContainer;
+import org.digidoc4j.impl.asic.asice.AsicEContainer;
+import org.digidoc4j.impl.asic.asice.AsicEContainerBuilder;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -77,11 +86,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import static ee.openeid.siga.client.hashcode.NonHashcodeContainerValidator.assertNonHashcodeContainer;
 import static ee.openeid.siga.client.hashcode.HashcodesDataFileCreator.createHashcodeDataFile;
 import static java.text.MessageFormat.format;
 import static org.apache.tomcat.util.codec.binary.Base64.encodeBase64String;
@@ -379,6 +390,20 @@ public class SigaApiClientService {
         return containerService.cacheHashcodeContainer(containerId, file.getOriginalFilename(), Base64.getDecoder().decode(getContainerResponse.getContainer()), hashcodeContainer.getRegularDataFiles());
     }
 
+    @SneakyThrows
+    public AsicContainerWrapper uploadAsicContainer(Map<String, MultipartFile> fileMap) {
+        MultipartFile file = fileMap.entrySet().iterator().next().getValue();
+        String containerName = file.getOriginalFilename();
+        byte[] container = file.getBytes();
+        assertNonHashcodeContainer(container);
+        UploadContainerResponse response = uploadContainer(container, containerName);
+
+        String containerId = response.getContainerId();
+        GetContainerResponse getContainerResponse = restTemplate.getForObject(getSigaApiUri(ASIC_ENDPOINT, containerId), GetContainerResponse.class);
+        log.info("Uploaded container with id {}", containerId);
+        return containerService.cacheAsicContainer(containerId, getContainerResponse.getContainerName(), getContainerResponse.getContainer().getBytes());
+    }
+
     private HashcodeContainer convertToHashcodeContainer(MultipartFile file) throws IOException {
         log.info("Converting container: {}", file.getOriginalFilename());
         return HashcodeContainer.fromRegularContainerBuilder()
@@ -392,6 +417,15 @@ public class SigaApiClientService {
         UploadHashcodeContainerRequest request = new UploadHashcodeContainerRequest();
         request.setContainer(encodedContainerContent);
         return restTemplate.postForObject(endpoint, request, UploadHashcodeContainerResponse.class);
+    }
+
+    private UploadContainerResponse uploadContainer(byte[] container, String containerName) {
+        String endpoint = fromUriString(sigaProperties.api().uri()).path("upload/containers").build().toUriString();
+        String encodedContainerContent = encodeBase64String(container);
+        UploadContainerRequest request = new UploadContainerRequest();
+        request.setContainer(encodedContainerContent);
+        request.setContainerName(containerName);
+        return restTemplate.postForObject(endpoint, request, UploadContainerResponse.class);
     }
 
     private <T> void getSignatureList(String containerEndpoint, String containerId, Class<T> clazz) {
