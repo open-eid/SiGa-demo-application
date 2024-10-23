@@ -58,6 +58,15 @@ public class MainController {
         return sigaApiClientService.createAsicContainer(fileMap.values());
     }
 
+    @PostMapping(value = "/upload-container", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseBody
+    @SneakyThrows
+    public AsicContainerWrapper uploadAsicContainer(MultipartHttpServletRequest request) {
+        Map<String, MultipartFile> fileMap = request.getFileMap();
+        log.info("Nr of files uploaded: {}", fileMap.size());
+        return sigaApiClientService.uploadAsicContainer(fileMap);
+    }
+
     @GetMapping(value = "/download/hashcode/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @ResponseBody
     public ResponseEntity downloadHashcodeContainer(@PathVariable("id") String id) {
