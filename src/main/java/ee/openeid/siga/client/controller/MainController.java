@@ -1,7 +1,13 @@
 package ee.openeid.siga.client.controller;
 
 import ee.openeid.siga.client.hashcode.HashcodeContainer;
-import ee.openeid.siga.client.model.*;
+import ee.openeid.siga.client.model.AsicContainerWrapper;
+import ee.openeid.siga.client.model.AugmentationRequest;
+import ee.openeid.siga.client.model.FinalizeRemoteSigningRequest;
+import ee.openeid.siga.client.model.HashcodeContainerWrapper;
+import ee.openeid.siga.client.model.MobileSigningRequest;
+import ee.openeid.siga.client.model.PrepareRemoteSigningRequest;
+import ee.openeid.siga.client.model.SmartIdSigningRequest;
 import ee.openeid.siga.client.service.ContainerService;
 import ee.openeid.siga.client.service.SigaApiClientService;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +18,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
@@ -130,6 +142,14 @@ public class MainController {
     public ResponseEntity finalizeRemoteSigning(@RequestBody FinalizeRemoteSigningRequest request) {
         log.info("Finalize remote signing request: {}", request);
         sigaApiClientService.finalizeRemoteSigning(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(value = "/augment-container", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity augmentContainer(@RequestBody AugmentationRequest request) {
+        log.info("Augmentation request: {}", request);
+        sigaApiClientService.startAugmentationFlow(request);
         return ResponseEntity.ok().build();
     }
 }

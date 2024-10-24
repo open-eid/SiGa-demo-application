@@ -4,6 +4,7 @@ import ee.openeid.siga.client.configuration.SiGaDemoProperties;
 import ee.openeid.siga.client.hashcode.HashcodeContainer;
 import ee.openeid.siga.client.hmac.HmacTokenAuthorizationHeaderInterceptor;
 import ee.openeid.siga.client.model.AsicContainerWrapper;
+import ee.openeid.siga.client.model.AugmentationRequest;
 import ee.openeid.siga.client.model.FinalizeRemoteSigningRequest;
 import ee.openeid.siga.client.model.GetContainerMobileIdSigningStatusResponse;
 import ee.openeid.siga.client.model.HashcodeContainerWrapper;
@@ -63,12 +64,6 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuil
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
-import org.digidoc4j.Container;
-import org.digidoc4j.ContainerBuilder;
-import org.digidoc4j.ContainerOpener;
-import org.digidoc4j.impl.asic.AsicContainer;
-import org.digidoc4j.impl.asic.asice.AsicEContainer;
-import org.digidoc4j.impl.asic.asice.AsicEContainerBuilder;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -86,7 +81,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
@@ -426,6 +420,24 @@ public class SigaApiClientService {
         request.setContainer(encodedContainerContent);
         request.setContainerName(containerName);
         return restTemplate.postForObject(endpoint, request, UploadContainerResponse.class);
+    }
+
+    public void startAugmentationFlow(AugmentationRequest request) {
+        setUpClientNotificationChannel(request.getContainerId());
+
+        String containerId = request.getContainerId();
+        AugmentContainerSignaturesResponse response = augmentContainer(containerId, AugmentContainerSignaturesResponse.class);
+
+        if (RESULT_OK.equals(response.getResult())) {
+            endAsicContainerFlow(containerId);
+        }
+    }
+
+    private <T> T augmentContainer(String containerId, Class<T> clazz) {
+        String endpoint = getSigaApiUri(ASIC_ENDPOINT, containerId, "augmentation");
+        T response = restTemplate.exchange(endpoint, PUT, null, clazz).getBody();
+        sendStatus(PUT, endpoint, response);
+        return response;
     }
 
     private <T> void getSignatureList(String containerEndpoint, String containerId, Class<T> clazz) {
