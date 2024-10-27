@@ -13,6 +13,7 @@ Functionality:
 * ID card signing (with Web eID in front end)
 * Smart-ID signing
 * Signature validation
+* ASiC container upload and augmentation
 
 ## How to set up
 
