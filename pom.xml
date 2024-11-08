@@ -83,24 +83,8 @@
         <dependency>
             <groupId>org.digidoc4j</groupId>
             <artifactId>digidoc4j</artifactId>
-            <version>5.2.0</version>
+            <version>5.3.1</version>
             <exclusions>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.sun.xml.bind</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>jakarta.activation</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>jakarta.xml.bind</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
                 <exclusion>
                     <groupId>org.apache.santuario</groupId>
                     <artifactId>*</artifactId>
@@ -111,10 +95,6 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.glassfish.jaxb</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
                 <exclusion>
