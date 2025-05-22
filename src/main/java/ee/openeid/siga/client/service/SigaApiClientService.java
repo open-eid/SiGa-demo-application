@@ -246,8 +246,7 @@ public class SigaApiClientService {
     private void endAsicContainerFlow(String containerId) {
         getContainerValidation(ASIC_ENDPOINT, containerId, GetContainerValidationReportResponse.class);
         GetContainerResponse getContainerResponse = getContainer(ASIC_ENDPOINT, containerId, GetContainerResponse.class);
-        AsicContainerWrapper container = containerService.getAsicContainer(containerId);
-        containerService.cacheAsicContainer(containerId, container.getName(), Base64.getDecoder().decode(getContainerResponse.getContainer()));
+        containerService.cacheAsicContainer(containerId, getContainerResponse.getContainerName(), Base64.getDecoder().decode(getContainerResponse.getContainer()));
         deleteContainer(ASIC_ENDPOINT, containerId, DeleteContainerResponse.class);
     }
 
