@@ -71,8 +71,10 @@
     <xs:element name="getContainerSmartIdSigningStatusResponse" type="tns:getContainerSmartIdSigningStatusResponse"/>
     <xs:element name="getContainerSignaturesResponse" type="tns:getContainerSignaturesResponse"/>
     <xs:element name="getContainerSignatureDetailsResponse" type="tns:getContainerSignatureDetailsResponse"/>
+    <xs:element name="getContainerTimestampsResponse" type="tns:getContainerTimestampsResponse"/>
     <xs:element name="createContainerDataFileRequest" type="tns:createContainerDataFileRequest"/>
     <xs:element name="createContainerDataFileResponse" type="tns:createContainerDataFileResponse"/>
+    <xs:element name="augmentContainerSignaturesResponse" type="tns:augmentContainerSignaturesResponse"/>
     <xs:element name="getContainerDataFilesResponse" type="tns:getContainerDataFilesResponse"/>
     <xs:element name="deleteContainerDataFileResponse" type="tns:deleteContainerDataFileResponse"/>
     <xs:element name="getContainerResponse" type="tns:getContainerResponse"/>
@@ -380,6 +382,11 @@
             <xs:element minOccurs="0" name="signatureProductionPlace" type="tns:signatureProductionPlace"/>
         </xs:sequence>
     </xs:complexType>
+    <xs:complexType name="getContainerTimestampsResponse">
+        <xs:sequence>
+            <xs:element minOccurs="0" name="timestamps" maxOccurs="unbounded" type="tns:timestamp"/>
+        </xs:sequence>
+    </xs:complexType>
     <xs:complexType name="createContainerDataFileRequest">
         <xs:sequence>
             <xs:element name="dataFiles" type="tns:dataFile" maxOccurs="unbounded"/>
@@ -397,6 +404,11 @@
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="deleteContainerDataFileResponse">
+        <xs:sequence>
+            <xs:element name="result" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="augmentContainerSignaturesResponse">
         <xs:sequence>
             <xs:element name="result" type="xs:string"/>
         </xs:sequence>
@@ -442,6 +454,12 @@
             <xs:element name="signatureProfile" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
+    <xs:complexType name="timestamp">
+        <xs:sequence>
+            <xs:element name="id" type="xs:string"/>
+            <xs:element name="creationTime" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
     <xs:complexType name="policy">
         <xs:sequence>
             <xs:element name="policyDescription" type="xs:string"/>
@@ -452,14 +470,36 @@
     <xs:complexType name="timeStampTokenData">
         <xs:sequence>
             <xs:element name="indication" type="xs:string"/>
+            <xs:element name="subIndication" type="xs:string"/>
+            <xs:element name="timestampLevel" type="xs:string"/>
             <xs:element name="signedBy" type="xs:string"/>
             <xs:element name="signedTime" type="xs:string"/>
+            <xs:element name="warning" minOccurs="0" maxOccurs="unbounded" type="tns:warning"/>
             <xs:element name="errors" minOccurs="0" maxOccurs="unbounded" type="tns:error"/>
+            <xs:element name="certificates" minOccurs="0" maxOccurs="unbounded" type="tns:certificate"/>
+            <xs:element name="timestampScopes" minOccurs="0" maxOccurs="unbounded" type="tns:timestampScope"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="error">
         <xs:sequence>
             <xs:element name="content" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="certificate">
+        <xs:sequence>
+            <xs:element name="commonName" type="xs:string"/>
+            <xs:element name="content" type="xs:string"/>
+            <xs:element name="issuer" type="xs:string"/>
+            <xs:element name="type" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="timestampScope">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="scope" type="xs:string"/>
+            <xs:element name="content" type="xs:string"/>
+            <xs:element name="hashAlgo" type="xs:string"/>
+            <xs:element name="hash" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="validatedDocumentData">
@@ -505,6 +545,17 @@
     <xs:complexType name="info">
         <xs:sequence>
             <xs:element minOccurs="0" name="bestSignatureTime" type="xs:string"/>
+            <xs:element name="ArchiveTimeStamps" minOccurs="0" maxOccurs="unbounded" type="tns:ArchiveTimeStamp"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ArchiveTimeStamp">
+        <xs:sequence>
+            <xs:element name="SignedTime" type="xs:string"/>
+            <xs:element name="Indication" type="xs:string"/>
+            <xs:element name="SubIndication" type="xs:string"/>
+            <xs:element name="SignedBy" type="xs:string"/>
+            <xs:element name="Country" type="xs:string"/>
+            <xs:element name="Content" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="errorResponse">

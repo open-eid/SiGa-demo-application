@@ -4,6 +4,7 @@ import ee.openeid.siga.client.configuration.SiGaDemoProperties;
 import ee.openeid.siga.client.hashcode.HashcodeContainer;
 import ee.openeid.siga.client.hmac.HmacTokenAuthorizationHeaderInterceptor;
 import ee.openeid.siga.client.model.AsicContainerWrapper;
+import ee.openeid.siga.client.model.AugmentationRequest;
 import ee.openeid.siga.client.model.FinalizeRemoteSigningRequest;
 import ee.openeid.siga.client.model.GetContainerMobileIdSigningStatusResponse;
 import ee.openeid.siga.client.model.HashcodeContainerWrapper;
@@ -13,6 +14,7 @@ import ee.openeid.siga.client.model.PrepareRemoteSigningResponse;
 import ee.openeid.siga.client.model.ProcessingStatus;
 import ee.openeid.siga.client.model.SmartIdCertificateChoiceStatusResponseWrapper;
 import ee.openeid.siga.client.model.SmartIdSigningRequest;
+import ee.openeid.siga.webapp.json.AugmentContainerSignaturesResponse;
 import ee.openeid.siga.webapp.json.CreateContainerMobileIdSigningRequest;
 import ee.openeid.siga.webapp.json.CreateContainerMobileIdSigningResponse;
 import ee.openeid.siga.webapp.json.CreateContainerRemoteSigningRequest;
@@ -47,6 +49,8 @@ import ee.openeid.siga.webapp.json.UpdateContainerRemoteSigningRequest;
 import ee.openeid.siga.webapp.json.UpdateContainerRemoteSigningResponse;
 import ee.openeid.siga.webapp.json.UpdateHashcodeContainerRemoteSigningRequest;
 import ee.openeid.siga.webapp.json.UpdateHashcodeContainerRemoteSigningResponse;
+import ee.openeid.siga.webapp.json.UploadContainerRequest;
+import ee.openeid.siga.webapp.json.UploadContainerResponse;
 import ee.openeid.siga.webapp.json.UploadHashcodeContainerRequest;
 import ee.openeid.siga.webapp.json.UploadHashcodeContainerResponse;
 import jakarta.annotation.PostConstruct;
@@ -54,14 +58,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.HttpEntity;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpResponse;
@@ -71,7 +74,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResponseErrorHandler;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -81,8 +84,10 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static ee.openeid.siga.client.hashcode.HashcodesDataFileCreator.createHashcodeDataFile;
+import static ee.openeid.siga.client.hashcode.NonHashcodeContainerValidator.assertNonHashcodeContainer;
 import static java.text.MessageFormat.format;
 import static org.apache.tomcat.util.codec.binary.Base64.encodeBase64String;
 import static org.springframework.http.HttpMethod.DELETE;
@@ -104,25 +109,43 @@ public class SigaApiClientService {
     private final ContainerService containerService;
     private final SimpMessageSendingOperations messagingTemplate;
     private final SSLContext sigaApiSslContext;
-    private final RestTemplateBuilder restTemplateBuilder;
     private final SiGaDemoProperties sigaProperties;
-    private RestTemplate restTemplate;
+    private final ObjectProvider<RestClient.Builder> restClientBuilderProvider;
+    private RestClient restClient;
     private String websocketChannelId;
 
-    @SneakyThrows
     @PostConstruct
-    private void setUpRestTemplate() {
-        SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sigaApiSslContext, NoopHostnameVerifier.INSTANCE);
-        HttpClientConnectionManager connectionManager = PoolingHttpClientConnectionManagerBuilder.create()
-                .setSSLSocketFactory(socketFactory)
-                .build();
+    private void setUpRestClient() {
+        try {
+            RestClient.Builder restClientBuilder = restClientBuilderProvider.getObject();
 
-        HttpClient httpClient = HttpClients.custom().setConnectionManager(connectionManager).build();
-        SiGaDemoProperties.Hmac hmac = sigaProperties.client().hmac();
-        restTemplate = restTemplateBuilder
-                .requestFactory(() -> new HttpComponentsClientHttpRequestFactory(httpClient))
-                .interceptors(new HmacTokenAuthorizationHeaderInterceptor(sigaProperties.api().uri(), hmac.algorithm(), hmac.serviceUuid(), hmac.sharedSigningKey()))
-                .errorHandler(new RestTemplateResponseErrorHandler()).build();
+            SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sigaApiSslContext, NoopHostnameVerifier.INSTANCE);
+
+            HttpClientConnectionManager connectionManager = PoolingHttpClientConnectionManagerBuilder.create()
+                    .setSSLSocketFactory(socketFactory)
+                    .build();
+
+            CloseableHttpClient httpClient = HttpClients.custom()
+                    .setConnectionManager(connectionManager)
+                    .build();
+
+            SiGaDemoProperties.Hmac hmac = sigaProperties.client().hmac();
+            HmacTokenAuthorizationHeaderInterceptor hmacInterceptor =
+                    new HmacTokenAuthorizationHeaderInterceptor(
+                            sigaProperties.api().uri(),
+                            hmac.algorithm(),
+                            hmac.serviceUuid(),
+                            hmac.sharedSigningKey()
+                    );
+
+            restClient = restClientBuilder
+                    .requestFactory(new HttpComponentsClientHttpRequestFactory(httpClient))
+                    .requestInterceptor(hmacInterceptor)
+                    .defaultStatusHandler(new RestClientResponseErrorHandler())
+                    .build();
+        } catch (Exception e) {
+            throw new IllegalStateException("Error setting up RestClient", e);
+        }
     }
 
     @Async
@@ -223,8 +246,7 @@ public class SigaApiClientService {
     private void endAsicContainerFlow(String containerId) {
         getContainerValidation(ASIC_ENDPOINT, containerId, GetContainerValidationReportResponse.class);
         GetContainerResponse getContainerResponse = getContainer(ASIC_ENDPOINT, containerId, GetContainerResponse.class);
-        AsicContainerWrapper container = containerService.getAsicContainer(containerId);
-        containerService.cacheAsicContainer(containerId, container.getName(), Base64.getDecoder().decode(getContainerResponse.getContainer()));
+        containerService.cacheAsicContainer(containerId, getContainerResponse.getContainerName(), Base64.getDecoder().decode(getContainerResponse.getContainer()));
         deleteContainer(ASIC_ENDPOINT, containerId, DeleteContainerResponse.class);
     }
 
@@ -280,7 +302,13 @@ public class SigaApiClientService {
 
     private <T> T prepareContainerRemoteSigning(String containerEndpoint, String containerId, Class<T> clazz, Object request) {
         String endpoint = getSigaApiUri(containerEndpoint, containerId, "remotesigning");
-        T response = restTemplate.postForObject(endpoint, request, clazz);
+
+        T response = restClient.post()
+                .uri(endpoint)
+                .body(request)
+                .retrieve()
+                .body(clazz);
+
         sendStatus(POST, endpoint, request, response);
         return response;
     }
@@ -301,10 +329,8 @@ public class SigaApiClientService {
         UpdateHashcodeContainerRemoteSigningRequest remoteSigningRequest = new UpdateHashcodeContainerRemoteSigningRequest();
         remoteSigningRequest.setSignatureValue(encodeBase64String(finalizeRemoteSigningRequest.getSignature()));
 
-        HttpEntity<UpdateHashcodeContainerRemoteSigningRequest> request = new HttpEntity<>(remoteSigningRequest);
-
         UpdateHashcodeContainerRemoteSigningResponse response = finalizeContainerRemoteSignature(HASHCODE_ENDPOINT,
-                containerId, finalizeRemoteSigningRequest.getSignatureId(), UpdateHashcodeContainerRemoteSigningResponse.class, request);
+                containerId, finalizeRemoteSigningRequest.getSignatureId(), UpdateHashcodeContainerRemoteSigningResponse.class, remoteSigningRequest);
 
         if (RESULT_OK.equals(response.getResult())) {
             endHashcodeContainerFlow(containerId);
@@ -317,20 +343,24 @@ public class SigaApiClientService {
         UpdateContainerRemoteSigningRequest remoteSigningRequest = new UpdateContainerRemoteSigningRequest();
         remoteSigningRequest.setSignatureValue(encodeBase64String(finalizeRemoteSigningRequest.getSignature()));
 
-        HttpEntity<UpdateContainerRemoteSigningRequest> request = new HttpEntity<>(remoteSigningRequest);
-
         UpdateContainerRemoteSigningResponse response = finalizeContainerRemoteSignature(ASIC_ENDPOINT,
-                containerId, finalizeRemoteSigningRequest.getSignatureId(), UpdateContainerRemoteSigningResponse.class, request);
+                containerId, finalizeRemoteSigningRequest.getSignatureId(), UpdateContainerRemoteSigningResponse.class, remoteSigningRequest);
 
         if (RESULT_OK.equals(response.getResult())) {
             endAsicContainerFlow(containerId);
         }
     }
 
-    private <T> T finalizeContainerRemoteSignature(String containerEndpoint, String containerId, String generatedSignatureId, Class<T> clazz, HttpEntity<?> request) {
+    private <T> T finalizeContainerRemoteSignature(String containerEndpoint, String containerId, String generatedSignatureId, Class<T> clazz, Object request) {
         String endpoint = getSigaApiUri(containerEndpoint, containerId, "remotesigning", generatedSignatureId);
-        T response = restTemplate.exchange(endpoint, PUT, request, clazz).getBody();
-        sendStatus(PUT, endpoint, request.getBody(), response);
+
+        T response = restClient.put()
+                .uri(endpoint)
+                .body(request)
+                .retrieve()
+                .body(clazz);
+
+        sendStatus(PUT, endpoint, request, response);
         return response;
     }
 
@@ -345,9 +375,20 @@ public class SigaApiClientService {
             request.getDataFiles().add(dataFile);
         }
         request.setContainerName("container.asice");
-        CreateContainerResponse createContainerResponse = restTemplate.postForObject(fromUriString(sigaProperties.api().uri()).path("containers").build().toUriString(), request, CreateContainerResponse.class);
+
+        CreateContainerResponse createContainerResponse = restClient.post()
+                .uri(getSigaApiUri("containers"))
+                .body(request)
+                .retrieve()
+                .body(CreateContainerResponse.class);
+
         String containerId = createContainerResponse.getContainerId();
-        GetContainerResponse getContainerResponse = restTemplate.getForObject(getSigaApiUri(ASIC_ENDPOINT, containerId), GetContainerResponse.class);
+
+        GetContainerResponse getContainerResponse = restClient.get()
+                .uri(getSigaApiUri(ASIC_ENDPOINT, containerId))
+                .retrieve()
+                .body(GetContainerResponse.class);
+
         return containerService.cacheAsicContainer(containerId, getContainerResponse.getContainerName(), getContainerResponse.getContainer().getBytes());
     }
 
@@ -360,10 +401,22 @@ public class SigaApiClientService {
             request.getDataFiles().add(createHashcodeDataFile(file.getOriginalFilename(), file.getSize(), file.getBytes()).convertToRequest());
             originalDataFiles.put(file.getOriginalFilename(), file.getBytes());
         }
-        CreateHashcodeContainerResponse createContainerResponse = restTemplate.postForObject(fromUriString(sigaProperties.api().uri()).path("hashcodecontainers").build().toUriString(), request, CreateHashcodeContainerResponse.class);
+
+        CreateHashcodeContainerResponse createContainerResponse = restClient.post()
+                .uri(getSigaApiUri("hashcodecontainers"))
+                .body(request)
+                .retrieve()
+                .body(CreateHashcodeContainerResponse.class);
+
         String containerId = createContainerResponse.getContainerId();
-        GetHashcodeContainerResponse getContainerResponse = restTemplate.getForObject(getSigaApiUri(HASHCODE_ENDPOINT, containerId), GetHashcodeContainerResponse.class);
+
+        GetHashcodeContainerResponse getContainerResponse = restClient.get()
+                .uri(getSigaApiUri(HASHCODE_ENDPOINT, containerId))
+                .retrieve()
+                .body(GetHashcodeContainerResponse.class);
+
         log.info("Created container with id {}", containerId);
+
         return containerService.cacheHashcodeContainer(containerId, containerId + ".asice", Base64.getDecoder().decode(getContainerResponse.getContainer()), originalDataFiles);
     }
 
@@ -374,9 +427,35 @@ public class SigaApiClientService {
         UploadHashcodeContainerResponse response = uploadHashcodeContainer(hashcodeContainer);
 
         String containerId = response.getContainerId();
-        GetHashcodeContainerResponse getContainerResponse = restTemplate.getForObject(getSigaApiUri(HASHCODE_ENDPOINT, containerId), GetHashcodeContainerResponse.class);
+
+        GetHashcodeContainerResponse getContainerResponse = restClient.get()
+                .uri(getSigaApiUri(HASHCODE_ENDPOINT, containerId))
+                .retrieve()
+                .body(GetHashcodeContainerResponse.class);
+
         log.info("Uploaded hashcode container with id {}", containerId);
+
         return containerService.cacheHashcodeContainer(containerId, file.getOriginalFilename(), Base64.getDecoder().decode(getContainerResponse.getContainer()), hashcodeContainer.getRegularDataFiles());
+    }
+
+    @SneakyThrows
+    public AsicContainerWrapper uploadAsicContainer(Map<String, MultipartFile> fileMap) {
+        MultipartFile file = fileMap.entrySet().iterator().next().getValue();
+        String containerName = file.getOriginalFilename();
+        byte[] container = file.getBytes();
+        assertNonHashcodeContainer(container);
+        UploadContainerResponse response = uploadContainer(container, containerName);
+
+        String containerId = response.getContainerId();
+
+        GetContainerResponse getContainerResponse = restClient.get()
+                .uri(getSigaApiUri(ASIC_ENDPOINT, containerId))
+                .retrieve()
+                .body(GetContainerResponse.class);
+
+        log.info("Uploaded container with id {}", containerId);
+
+        return containerService.cacheAsicContainer(containerId, getContainerResponse.getContainerName(), getContainerResponse.getContainer().getBytes());
     }
 
     private HashcodeContainer convertToHashcodeContainer(MultipartFile file) throws IOException {
@@ -391,25 +470,84 @@ public class SigaApiClientService {
         String encodedContainerContent = encodeBase64String(hashcodeContainer.getHashcodeContainer());
         UploadHashcodeContainerRequest request = new UploadHashcodeContainerRequest();
         request.setContainer(encodedContainerContent);
-        return restTemplate.postForObject(endpoint, request, UploadHashcodeContainerResponse.class);
+
+        return restClient.post()
+                .uri(endpoint)
+                .body(request)
+                .retrieve()
+                .body(UploadHashcodeContainerResponse.class);
+    }
+
+    private UploadContainerResponse uploadContainer(byte[] container, String containerName) {
+        String endpoint = fromUriString(sigaProperties.api().uri()).path("upload/containers").build().toUriString();
+        String encodedContainerContent = encodeBase64String(container);
+        UploadContainerRequest request = new UploadContainerRequest();
+        request.setContainer(encodedContainerContent);
+        request.setContainerName(containerName);
+
+        return restClient.post()
+                .uri(endpoint)
+                .body(request)
+                .retrieve()
+                .body(UploadContainerResponse.class);
+    }
+
+    public void startAugmentationFlow(AugmentationRequest request) {
+        setUpClientNotificationChannel(request.getContainerId());
+
+        String containerId = request.getContainerId();
+        AugmentContainerSignaturesResponse response = augmentContainer(containerId, AugmentContainerSignaturesResponse.class);
+
+        if (RESULT_OK.equals(response.getResult())) {
+            endAsicContainerFlow(containerId);
+        }
+    }
+
+    private <T> T augmentContainer(String containerId, Class<T> clazz) {
+        String endpoint = getSigaApiUri(ASIC_ENDPOINT, containerId, "augmentation");
+
+        T response = restClient.put()
+                .uri(endpoint)
+                .retrieve()
+                .body(clazz);
+
+        sendStatus(PUT, endpoint, response);
+        return response;
     }
 
     private <T> void getSignatureList(String containerEndpoint, String containerId, Class<T> clazz) {
         String endpoint = getSigaApiUri(containerEndpoint, containerId, "signatures");
-        T response = restTemplate.getForObject(endpoint, clazz);
+
+        T response = restClient.get()
+                .uri(endpoint)
+                .retrieve()
+                .body(clazz);
+
         sendStatus(GET, endpoint, response);
     }
 
     private <T> T prepareMobileIdSignatureSigning(String containerEndpoint, String containerId, Class<T> clazz, Object request) {
         String endpoint = getSigaApiUri(containerEndpoint, containerId, "mobileidsigning");
-        T response = restTemplate.postForObject(endpoint, request, clazz);
+
+        T response = restClient.post()
+                .uri(endpoint)
+                .body(request)
+                .retrieve()
+                .body(clazz);
+
         sendStatus(POST, endpoint, request, response);
         return response;
     }
 
     private <T> T prepareSmartIdSignatureSigning(String url, Object request, String containerId, Class<T> responseType) {
         String endpoint = getSigaApiUri(url, containerId, "smartidsigning");
-        T response = restTemplate.postForObject(endpoint, request, responseType);
+
+        T response = restClient.post()
+                .uri(endpoint)
+                .body(request)
+                .retrieve()
+                .body(responseType);
+
         sendStatus(POST, endpoint, request, response);
         return response;
     }
@@ -419,7 +557,10 @@ public class SigaApiClientService {
         String endpoint = getSigaApiUri(containerEndpoint, containerId, "mobileidsigning", generatedSignatureId, "status");
         GetContainerMobileIdSigningStatusResponse response;
         for (int i = 0; i < 6; i++) {
-            response = restTemplate.getForObject(endpoint, GetContainerMobileIdSigningStatusResponse.class);
+            response = restClient.get()
+                    .uri(endpoint)
+                    .retrieve()
+                    .body(GetContainerMobileIdSigningStatusResponse.class);
             sendStatus(GET, endpoint, response);
             if (!"SIGNATURE".equals(response.getMidStatus())) {
                 Thread.sleep(5000);
@@ -432,13 +573,22 @@ public class SigaApiClientService {
 
     private <T> void getContainerValidation(String containerEndpoint, String containerId, Class<T> clazz) {
         String endpoint = getSigaApiUri(containerEndpoint, containerId, "validationreport");
-        T response = restTemplate.getForObject(endpoint, clazz);
+
+        T response = restClient.get()
+                .uri(endpoint)
+                .retrieve()
+                .body(clazz);
+
         sendStatus(GET, endpoint, response);
     }
 
     private <T> T getContainer(String containerEndpoint, String containerId, Class<T> clazz) {
         String endpoint = getSigaApiUri(containerEndpoint, containerId);
-        T response = restTemplate.getForObject(endpoint, clazz);
+
+        T response = restClient.get()
+                .uri(endpoint)
+                .retrieve()
+                .body(clazz);
 
         ProcessingStatus processingStatus = ProcessingStatus.builder()
                 .containerReadyForDownload(true)
@@ -452,7 +602,12 @@ public class SigaApiClientService {
 
     private <T> void deleteContainer(String containerEndpoint, String containerId, Class<T> clazz) {
         String endpoint = getSigaApiUri(containerEndpoint, containerId);
-        ResponseEntity<T> response = restTemplate.exchange(endpoint, DELETE, null, clazz);
+
+        ResponseEntity<T> response = restClient.delete()
+                .uri(endpoint)
+                .retrieve()
+                .toEntity(clazz);
+
         sendStatus(DELETE, endpoint, response.getStatusCode());
     }
 
@@ -527,7 +682,13 @@ public class SigaApiClientService {
 
     private <T> T prepareSmartIdCertificateSelection(String url, Object request, String containerId, Class<T> responseType) {
         String endpoint = getSigaApiUri(url, containerId, "smartidsigning/certificatechoice");
-        T response = restTemplate.postForObject(endpoint, request, responseType);
+
+        T response = restClient.post()
+                .uri(endpoint)
+                .body(request)
+                .retrieve()
+                .body(responseType);
+
         sendStatus(POST, endpoint, request, response);
         return response;
     }
@@ -557,7 +718,10 @@ public class SigaApiClientService {
         SmartIdCertificateChoiceStatusResponseWrapper wrapper = new SmartIdCertificateChoiceStatusResponseWrapper();
         GetContainerSmartIdCertificateChoiceStatusResponse response;
         for (int i = 0; i < 18; i++) {
-            response = restTemplate.getForObject(endpoint, GetContainerSmartIdCertificateChoiceStatusResponse.class);
+            response = restClient.get()
+                    .uri(endpoint)
+                    .retrieve()
+                    .body(GetContainerSmartIdCertificateChoiceStatusResponse.class);
             sendStatus(GET, endpoint, response);
             if (!"CERTIFICATE".equals(response.getSidStatus())) {
                 Thread.sleep(5000);
@@ -592,7 +756,10 @@ public class SigaApiClientService {
         String endpoint = getSigaApiUri(containerEndpoint, containerId, "smartidsigning", generatedSignatureId, "status");
         GetContainerSmartIdSigningStatusResponse response;
         for (int i = 0; i < 6; i++) {
-            response = restTemplate.getForObject(endpoint, GetContainerSmartIdSigningStatusResponse.class);
+            response = restClient.get()
+                    .uri(endpoint)
+                    .retrieve()
+                    .body(GetContainerSmartIdSigningStatusResponse.class);
             sendStatus(GET, endpoint, response);
             if (!"SIGNATURE".equals(response.getSidStatus())) {
                 Thread.sleep(5000);
@@ -603,7 +770,7 @@ public class SigaApiClientService {
         return false;
     }
 
-    class RestTemplateResponseErrorHandler implements ResponseErrorHandler {
+    class RestClientResponseErrorHandler implements ResponseErrorHandler {
 
         @Override
         public boolean hasError(ClientHttpResponse httpResponse) throws IOException {

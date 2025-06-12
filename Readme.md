@@ -1,4 +1,4 @@
-![EU Regional Development Fund](docs/img/EL_Regionaalarengu_Fond_horisontaalne-vaike.jpeg)
+<img src="docs/img/Co-funded_by_the_European_Union.jpg" width="350" height="200" alt="Co-funded by the European Union">
 
 # Signature Gateway demo application
 
@@ -13,6 +13,7 @@ Functionality:
 * ID card signing (with Web eID in front end)
 * Smart-ID signing
 * Signature validation
+* ASiC container upload and augmentation
 
 ## How to set up
 
@@ -22,8 +23,8 @@ towards sample APIs.
 
 **Preconditions**:
 
-1. **Java JDK 17** - to compile and run SiVa demo
-2. **SiVa parent project** - Can be found [here](https://github.com/open-eid/SiGa)
+1. **Java JDK 17** - to compile and run SiGa demo
+2. **SiGa parent project** - Can be found [here](https://github.com/open-eid/SiGa)
 
 ### Option 1: Running SiGa locally with Docker
 
@@ -59,6 +60,9 @@ siga.client.hmac.shared-signing-key=746573745365637265744b6579303031
 | siga.api.trust-store | Location of the trustore containing server's certificate or CA (path without quotes symbol) | `classpath:siga_server_truststore.p12` or `file:/path/to/siga_server_truststore.p12` |
 | siga.api.trust-store-password | Password of the trustore containing server's certificate or CA. | `changeit` |
 | siga.api.trust-store-type | Type of the trustore containing server's certificate or CA. Defaults to system default if not provided. | `PKCS12` |
+| siga.client.hmac.algorithm | More info can be found [here](https://github.com/open-eid/SiGa/wiki/Authorization) | `HmacSHA256` |
+| siga.client.hmac.service-uuid | More info can be found [here](https://github.com/open-eid/SiGa/wiki/Authorization) | `a7fd7728-a3ea-4975-bfab-f240a67e894f` |
+| siga.client.hmac.shared-signing-key | More info can be found [here](https://github.com/open-eid/SiGa/wiki/Authorization) | `746573745365637265744b6579303031` |
 
 2. Build this project
 
@@ -92,7 +96,7 @@ Before every signing the webapage needs to be reloaded and files uploaded.
 With Docker setup, Signature Gateway is in TEST mode. Meaning it is possible to sign only with TEST ID-card, TEST
 Mobile-ID or TEST Smart-ID.
 
-* TEST ID-cards can be ordered [here](https://www.skidsolutions.eu/teenused/testkaardid/).
+* TEST ID-cards can be ordered [here](https://portal.skidsolutions.eu/order/certificates?tab=test-card).
 * TEST Mobile-ID numbers can be
   found [here](https://github.com/SK-EID/MID/wiki/Test-number-for-automated-testing-in-DEMO).
 * TEST Smart-ID numbers can be

@@ -1,7 +1,13 @@
 package ee.openeid.siga.client.controller;
 
 import ee.openeid.siga.client.hashcode.HashcodeContainer;
-import ee.openeid.siga.client.model.*;
+import ee.openeid.siga.client.model.AsicContainerWrapper;
+import ee.openeid.siga.client.model.AugmentationRequest;
+import ee.openeid.siga.client.model.FinalizeRemoteSigningRequest;
+import ee.openeid.siga.client.model.HashcodeContainerWrapper;
+import ee.openeid.siga.client.model.MobileSigningRequest;
+import ee.openeid.siga.client.model.PrepareRemoteSigningRequest;
+import ee.openeid.siga.client.model.SmartIdSigningRequest;
 import ee.openeid.siga.client.service.ContainerService;
 import ee.openeid.siga.client.service.SigaApiClientService;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +18,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
@@ -36,7 +48,7 @@ public class MainController {
     @ResponseBody
     public HashcodeContainerWrapper convertContainerToHashcodeContainer(MultipartHttpServletRequest request) {
         Map<String, MultipartFile> fileMap = request.getFileMap();
-        log.info("Nr of files uploaded: {}", fileMap.size());
+        log.info("Number of files uploaded: {}", fileMap.size());
         return sigaApiClientService.convertAndUploadHashcodeContainer(fileMap);
     }
 
@@ -45,7 +57,7 @@ public class MainController {
     @SneakyThrows
     public HashcodeContainerWrapper createHashcodeContainerFromFiles(MultipartHttpServletRequest request) {
         Map<String, MultipartFile> fileMap = request.getFileMap();
-        log.info("Nr of files uploaded: {}", fileMap.size());
+        log.info("Number of files uploaded: {}", fileMap.size());
         return sigaApiClientService.createHashcodeContainer(fileMap.values());
     }
 
@@ -54,8 +66,17 @@ public class MainController {
     @SneakyThrows
     public AsicContainerWrapper createContainerFromFiles(MultipartHttpServletRequest request) {
         Map<String, MultipartFile> fileMap = request.getFileMap();
-        log.info("Nr of files uploaded: {}", fileMap.size());
+        log.info("Number of files uploaded: {}", fileMap.size());
         return sigaApiClientService.createAsicContainer(fileMap.values());
+    }
+
+    @PostMapping(value = "/upload-container", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseBody
+    @SneakyThrows
+    public AsicContainerWrapper uploadAsicContainer(MultipartHttpServletRequest request) {
+        Map<String, MultipartFile> fileMap = request.getFileMap();
+        log.info("Number of files uploaded: {}", fileMap.size());
+        return sigaApiClientService.uploadAsicContainer(fileMap);
     }
 
     @GetMapping(value = "/download/hashcode/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
@@ -121,6 +142,14 @@ public class MainController {
     public ResponseEntity finalizeRemoteSigning(@RequestBody FinalizeRemoteSigningRequest request) {
         log.info("Finalize remote signing request: {}", request);
         sigaApiClientService.finalizeRemoteSigning(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(value = "/augment-container", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity augmentContainer(@RequestBody AugmentationRequest request) {
+        log.info("Augmentation request: {}", request);
+        sigaApiClientService.startAugmentationFlow(request);
         return ResponseEntity.ok().build();
     }
 }

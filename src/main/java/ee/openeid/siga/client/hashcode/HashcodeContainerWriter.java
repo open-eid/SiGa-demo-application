@@ -1,8 +1,9 @@
 package ee.openeid.siga.client.hashcode;
 
+import eu.europa.esig.dss.enumerations.MimeType;
+import eu.europa.esig.dss.enumerations.MimeTypeEnum;
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.DigestDocument;
-import eu.europa.esig.dss.model.MimeType;
 import lombok.SneakyThrows;
 import org.digidoc4j.Container;
 import org.digidoc4j.DataFile;
@@ -22,7 +23,7 @@ import java.util.zip.ZipOutputStream;
 class HashcodeContainerWriter {
 
     public static final String SIGNATURE_FILE_PREFIX = "META-INF/signatures";
-    private static final String ZIP_ENTRY_MIMETYPE = "mimetype";
+    public static final String ZIP_ENTRY_MIMETYPE = "mimetype";
     private static final String SIGNATURE_FILE_EXTENSION = ".xml";
     private final ZipOutputStream zipOutputStream;
 
@@ -64,7 +65,7 @@ class HashcodeContainerWriter {
     }
 
     public void writeMimeType() {
-        byte[] mimeType = MimeType.ASICE.getMimeTypeString().getBytes();
+        byte[] mimeType = MimeTypeEnum.ASICE.getMimeTypeString().getBytes();
         new BytesEntryCallback(createZipEntry(mimeType, ZIP_ENTRY_MIMETYPE), mimeType).write();
     }
 

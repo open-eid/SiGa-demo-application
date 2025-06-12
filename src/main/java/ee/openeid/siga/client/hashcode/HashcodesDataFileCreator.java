@@ -1,6 +1,6 @@
 package ee.openeid.siga.client.hashcode;
 
-import eu.europa.esig.dss.DomUtils;
+import eu.europa.esig.dss.xml.utils.DomUtils;
 import lombok.SneakyThrows;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
