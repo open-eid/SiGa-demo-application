@@ -66,6 +66,7 @@ import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -80,11 +81,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import static ee.openeid.siga.client.hashcode.HashcodesDataFileCreator.createHashcodeDataFile;
 import static ee.openeid.siga.client.hashcode.NonHashcodeContainerValidator.assertNonHashcodeContainer;
@@ -779,16 +781,17 @@ public class SigaApiClientService {
         }
 
         @Override
-        public void handleError(ClientHttpResponse httpResponse) throws IOException {
+        public void handleError(URI url, HttpMethod method, ClientHttpResponse httpResponse) throws IOException {
+            HttpStatusCode statusCode = httpResponse.getStatusCode();
+            String status = String.valueOf(statusCode.value());
+            String errorResponse = new String(httpResponse.getBody().readAllBytes(), StandardCharsets.UTF_8);
+
             try {
-                sendError(format("Unable to process container: {0}, {1}", httpResponse.getStatusCode(), httpResponse.getStatusText()));
+                sendError("Unable to process container: {0}, {1}", status, errorResponse);
             } catch (RuntimeException ex) {
                 // happens when websocket is not yet initaited
                 // propagate http error to client
-                throw new HttpClientErrorException(
-                    httpResponse.getStatusCode(), 
-                    new String(httpResponse.getBody().readAllBytes())
-                );
+                throw new HttpClientErrorException(statusCode, errorResponse);
             }
         }
     }
