@@ -39,6 +39,11 @@
         <webjars-locator.version>0.52</webjars-locator.version>
 
         <cxf-wadl2java-plugin.version>4.2.1</cxf-wadl2java-plugin.version>
+
+        <!-- Override vulnerable dependencies that are pulled in via Spring boot -->
+        <!-- TODO: Amend this list when Spring Boot version is updated! -->
+        <commons-lang3.version>3.20.0</commons-lang3.version> <!-- CVE-2025-48924 -->
+        <tomcat.version>10.1.55</tomcat.version> <!-- CVE-2026-43512 -->
     </properties>
 
     <dependencies>
