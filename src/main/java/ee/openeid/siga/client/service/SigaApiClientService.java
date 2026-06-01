@@ -91,7 +91,7 @@ import java.util.Map;
 import static ee.openeid.siga.client.hashcode.HashcodesDataFileCreator.createHashcodeDataFile;
 import static ee.openeid.siga.client.hashcode.NonHashcodeContainerValidator.assertNonHashcodeContainer;
 import static java.text.MessageFormat.format;
-import static org.apache.tomcat.util.codec.binary.Base64.encodeBase64String;
+import static org.apache.commons.codec.binary.Base64.encodeBase64String;
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;

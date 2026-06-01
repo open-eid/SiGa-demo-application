@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.14</version>
+        <version>4.0.6</version>
     </parent>
 
     <groupId>ee.openeid.siga.client</groupId>
@@ -36,14 +36,13 @@
         <stomp-websocket.version>2.3.4</stomp-websocket.version>
         <vue.version>2.7.7</vue.version>
         <vue2-dropzone.version>3.5.2</vue2-dropzone.version>
-        <webjars-locator.version>0.52</webjars-locator.version>
 
         <cxf-wadl2java-plugin.version>4.2.1</cxf-wadl2java-plugin.version>
 
         <!-- Override vulnerable dependencies that are pulled in via Spring boot -->
         <!-- TODO: Amend this list when Spring Boot version is updated! -->
         <commons-lang3.version>3.20.0</commons-lang3.version> <!-- CVE-2025-48924 -->
-        <tomcat.version>10.1.55</tomcat.version> <!-- CVE-2026-43512 -->
+        <tomcat.version>11.0.22</tomcat.version> <!-- CVE-2026-43512 -->
     </properties>
 
     <dependencies>
@@ -119,11 +118,15 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-restclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>org.yaml</groupId>
@@ -158,8 +161,7 @@
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
-            <artifactId>webjars-locator</artifactId>
-            <version>${webjars-locator.version}</version>
+            <artifactId>webjars-locator-lite</artifactId>
         </dependency>
         <dependency>
             <groupId>org.webjars.bower</groupId>
@@ -247,7 +249,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <executable>true</executable>
                     <image>
                         <name>${project.artifactId}:latest</name>
                     </image>
