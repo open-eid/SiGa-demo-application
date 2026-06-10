@@ -6,17 +6,43 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.0</version>
+        <version>4.0.6</version>
     </parent>
 
     <groupId>ee.openeid.siga.client</groupId>
     <artifactId>siga-demo-application</artifactId>
-    <version>3.4.0</version>
+    <version>3.5.0</version>
     <description>Contains SiGa demo client application</description>
     <packaging>jar</packaging>
 
     <properties>
         <java.version>17</java.version>
+
+        <commons-compress.version>1.28.0</commons-compress.version>
+        <digidoc4j.version>6.1.1</digidoc4j.version>
+        <guava.version>33.6.0-jre</guava.version>
+        <logback-ecs-encoder.version>1.8.0</logback-ecs-encoder.version>
+
+        <axios.version>1.9.0</axios.version>
+        <babel-standalone.version>7.21.2</babel-standalone.version>
+        <bootstrap.version>4.6.2</bootstrap.version>
+        <bootstrap-vue.version>2.0.0-rc.13</bootstrap-vue.version>
+        <dropzone.version>5.9.2</dropzone.version>
+        <highlightjs.version>9.12.0</highlightjs.version>
+        <jquery.version>3.7.1</jquery.version>
+        <node-fetch.version>3.3.2</node-fetch.version>
+        <requirejs.version>2.3.7</requirejs.version>
+        <sockjs-client.version>1.4.0</sockjs-client.version>
+        <stomp-websocket.version>2.3.4</stomp-websocket.version>
+        <vue.version>2.7.7</vue.version>
+        <vue2-dropzone.version>3.5.2</vue2-dropzone.version>
+
+        <cxf-wadl2java-plugin.version>4.2.1</cxf-wadl2java-plugin.version>
+
+        <!-- Override vulnerable dependencies that are pulled in via Spring boot -->
+        <!-- TODO: Amend this list when Spring Boot version is updated! -->
+        <commons-lang3.version>3.20.0</commons-lang3.version> <!-- CVE-2025-48924 -->
+        <tomcat.version>11.0.22</tomcat.version> <!-- CVE-2026-43512 -->
     </properties>
 
     <dependencies>
@@ -31,43 +57,16 @@
         <dependency>
             <groupId>co.elastic.logging</groupId>
             <artifactId>logback-ecs-encoder</artifactId>
-            <version>1.7.0</version>
+            <version>${logback-ecs-encoder.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.yaml</groupId>
-                    <artifactId>snakeyaml</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-cache</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-websocket</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>33.4.8-jre</version>
+            <version>${guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
         <dependency>
             <groupId>jakarta.ws.rs</groupId>
@@ -77,11 +76,15 @@
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>${commons-compress.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.digidoc4j</groupId>
             <artifactId>digidoc4j</artifactId>
-            <version>6.0.1</version>
+            <version>${digidoc4j.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.santuario</groupId>
@@ -102,50 +105,93 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-compress</artifactId>
-            <version>1.27.1</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-restclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.yaml</groupId>
+                    <artifactId>snakeyaml</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.webjars.npm</groupId>
-            <artifactId>babel__standalone</artifactId>
-            <version>7.21.2</version>
+            <groupId>org.webjars</groupId>
+            <artifactId>bootstrap</artifactId>
+            <version>${bootstrap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
-            <artifactId>requirejs</artifactId>
-            <version>2.3.7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>webjars-locator</artifactId>
-            <version>0.52</version>
+            <artifactId>dropzone</artifactId>
+            <version>${dropzone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>jquery</artifactId>
-            <version>3.7.1</version>
+            <version>${jquery.version}</version>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
-            <artifactId>bootstrap</artifactId>
-            <version>4.6.2</version>
+            <artifactId>requirejs</artifactId>
+            <version>${requirejs.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>webjars-locator-lite</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>highlightjs</artifactId>
+            <version>${highlightjs.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>sockjs-client</artifactId>
+            <version>${sockjs-client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>stomp-websocket</artifactId>
+            <version>${stomp-websocket.version}</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.npm</groupId>
-            <artifactId>node-fetch</artifactId>
-            <version>3.3.2</version>
+            <artifactId>axios</artifactId>
+            <version>${axios.version}</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.npm</groupId>
-            <artifactId>vue</artifactId>
-            <version>2.7.7</version>
+            <artifactId>babel__standalone</artifactId>
+            <version>${babel-standalone.version}</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.npm</groupId>
             <artifactId>bootstrap-vue</artifactId>
-            <version>2.0.0-rc.13</version>
+            <version>${bootstrap-vue.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.webjars.npm</groupId>
@@ -159,39 +205,29 @@
         </dependency>
         <dependency>
             <groupId>org.webjars.npm</groupId>
-            <artifactId>axios</artifactId>
-            <version>1.9.0</version>
+            <artifactId>node-fetch</artifactId>
+            <version>${node-fetch.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.webjars.bower</groupId>
-            <artifactId>sockjs-client</artifactId>
-            <version>1.4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.bower</groupId>
-            <artifactId>stomp-websocket</artifactId>
-            <version>2.3.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>dropzone</artifactId>
-            <version>5.9.2</version>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>vue</artifactId>
+            <version>${vue.version}</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.npm</groupId>
             <artifactId>vue2-dropzone</artifactId>
-            <version>3.5.2</version>
+            <version>${vue2-dropzone.version}</version>
             <exclusions>
-            <exclusion>
-                <groupId>org.webjars.npm</groupId>
-                <artifactId>dropzone</artifactId>
-            </exclusion>
+                <exclusion>
+                    <groupId>org.webjars.npm</groupId>
+                    <artifactId>dropzone</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
+
         <dependency>
-            <groupId>org.webjars.bower</groupId>
-            <artifactId>highlightjs</artifactId>
-            <version>9.12.0</version>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
         </dependency>
 
         <dependency>
@@ -213,7 +249,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <executable>true</executable>
                     <image>
                         <name>${project.artifactId}:latest</name>
                     </image>
@@ -222,7 +257,7 @@
             <plugin>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-wadl2java-plugin</artifactId>
-                <version>4.1.2</version>
+                <version>${cxf-wadl2java-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>generate-sources</id>
