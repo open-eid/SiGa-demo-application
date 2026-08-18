@@ -38,51 +38,58 @@ time.
 
 If everything was successful, open up the browser at `https://siga-demo.localhost:9443/`.
 
-### Option 2: Running with external APIs
+### Option 2: Running standalone, against Docker Compose or an external SiGa instance
 
-1. Open up the
-   [application.properties](https://github.com/open-eid/SiGa-demo-application/blob/master/src/main/resources/application.properties)
-   file and change the following properties accordingly:
-
-```
-siga.api.uri=https://siga.localhost:8443/siga
-siga.api.trust-store=file:/path/to/siga_server_truststore.p12
-siga.api.trust-store-password=changeit
-siga.api.trust-store-type=PKCS12
-siga.client.hmac.algorithm=HmacSHA256
-siga.client.hmac.service-uuid=a7fd7728-a3ea-4975-bfab-f240a67e894f
-siga.client.hmac.shared-signing-key=746573745365637265744b6579303031
-```
-
-| Parameter           | Description | Example |
-|---------------------|-------------|---------|
-| siga.api.uri        | SIGA server URL (without slash symbol in the end) | `https://siga.localhost:8443/siga` |
-| siga.api.trust-store | Location of the trustore containing server's certificate or CA (path without quotes symbol) | `classpath:siga_server_truststore.p12` or `file:/path/to/siga_server_truststore.p12` |
-| siga.api.trust-store-password | Password of the trustore containing server's certificate or CA. | `changeit` |
-| siga.api.trust-store-type | Type of the trustore containing server's certificate or CA. Defaults to system default if not provided. | `PKCS12` |
-| siga.client.hmac.algorithm | More info can be found [here](https://github.com/open-eid/SiGa/wiki/Authorization) | `HmacSHA256` |
-| siga.client.hmac.service-uuid | More info can be found [here](https://github.com/open-eid/SiGa/wiki/Authorization) | `a7fd7728-a3ea-4975-bfab-f240a67e894f` |
-| siga.client.hmac.shared-signing-key | More info can be found [here](https://github.com/open-eid/SiGa/wiki/Authorization) | `746573745365637265744b6579303031` |
-
-2. Build this project
+1. Build this project:
 
 ```bash
 ./mvnw clean install
 ```
 
-3. Run compiled JAR (found in target folder)
+2. The default
+   [application.yml](https://github.com/open-eid/SiGa-demo-application/blob/master/src/main/resources/application.yml)
+   does not set any of the properties below — they're either environment-specific or a secret, so every
+   deployment target must supply them itself rather than inherit a bundled default. Spring Boot supports several ways
+   to do this — see [Spring Boot's Externalized Configuration guide](https://docs.spring.io/spring-boot/reference/features/external-config.html)
+   for the full picture. The example at point 3 uses `-D` system properties for simplicity.
+
+| Parameter | Mandatory | Description | Example |
+|---|---|---|---|
+| `siga.api.uri` | Y | SiGa server URL. | `https://siga.localhost:8443` |
+| `siga.api.trust-store` | Y | Truststore the demo app uses to trust the SiGa server's TLS certificate. Generated alongside the keystore below for the Docker Compose case. | `file:/path/to/SiGa/docker/tls/siga-demo/siga-demo.truststore.p12` |
+| `siga.api.trust-store-password` | Y | Password for the truststore above. | `changeit` |
+| `siga.api.trust-store-type` | N | Truststore format for `siga.api.trust-store` above. Defaults to the JVM's own `KeyStore.getDefaultType()` (`PKCS12` on modern JDKs) if unset — only needs overriding for a non-PKCS12 truststore. | `PKCS12` |
+| `siga.client.hmac.service-uuid` | Y | HMAC client identifier issued by SiGa — see the [SiGa Authorization wiki](https://github.com/open-eid/SiGa/wiki/Authorization). | `a7fd7728-a3ea-4975-bfab-f240a67e894f` |
+| `siga.client.hmac.shared-signing-key` | Y | Shared HMAC signing key for the client above. | `746573745365637265744b6579303031` |
+
+   To point at an external or sample SiGa API instead of a local Docker Compose instance, substitute your own
+   `siga.api.uri`, trust-store, and HMAC credentials for the example values above.
+
+3. Run the built jar with the required overrides (adjust the `docker/tls/...` paths below to wherever you checked
+   out the [SiGa parent project](https://github.com/open-eid/SiGa)):
 
 ```bash
-java -jar siga-demo-application-X.X.X.jar
+java -Dserver.port=9443 \
+     -Dserver.ssl.enabled=true \
+     -Dserver.ssl.key-store=file:/path/to/SiGa/docker/tls/siga-demo/siga-demo.localhost.keystore.p12 \
+     -Dserver.ssl.key-store-password=changeit \
+     -Dserver.ssl.key-alias=siga-demo.localhost \
+     -Dsiga.api.uri=https://siga.localhost:8443 \
+     -Dsiga.api.trust-store=file:/path/to/SiGa/docker/tls/siga-demo/siga-demo.truststore.p12 \
+     -Dsiga.api.trust-store-password=changeit \
+     -Dsiga.client.hmac.service-uuid=a7fd7728-a3ea-4975-bfab-f240a67e894f \
+     -Dsiga.client.hmac.shared-signing-key=746573745365637265744b6579303031 \
+     -jar target/siga-demo-application-X.X.X.jar
 ```
 
-Now application is accessible at https://siga-demo.localhost:9443/.
+Now application is accessible at https://siga-demo.localhost:9443/ (or plain `http://localhost:8080/` if
+`server.port` and `server.ssl.enabled` are left unset).
 
 ### SiGa demo configuration
 
-Example `application.properties` file can be seen [here](src/main/resources/application.properties).
+Example `application.yml` file can be seen [here](src/main/resources/application.yml).
 Common Spring Boot properties are
-described [here](https://docs.spring.io/spring-boot/docs/2.7.8/reference/html/application-properties.html).
+described [here](https://docs.spring.io/spring-boot/appendix/application-properties/index.html).
 
 | Parameter                                 | Mandatory | Description       | Example |
 |-------------------------------------------|-----------|-------------------|---------|
@@ -91,7 +98,7 @@ described [here](https://docs.spring.io/spring-boot/docs/2.7.8/reference/html/ap
 
 ## How to use
 
-Before every signing the webapage needs to be reloaded and files uploaded.
+Before every signing the webpage needs to be reloaded and files uploaded.
 
 With Docker setup, Signature Gateway is in TEST mode. Meaning it is possible to sign only with TEST ID-card, TEST
 Mobile-ID or TEST Smart-ID.
