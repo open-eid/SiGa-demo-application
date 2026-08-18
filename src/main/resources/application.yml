@@ -1,12 +1,3 @@
-server:
-  port: 9443
-  ssl:
-    enabled: true
-    key-store-type: PKCS12
-    key-store: classpath:siga_demo_application.p12
-    key-store-password: changeit
-    key-alias: siga-demo.localhost
-
 spring:
   servlet:
     multipart:
@@ -29,13 +20,6 @@ management:
         enabled: true
 
 siga:
-  api:
-    uri: https://siga.localhost:8443
-    trust-store: classpath:siga_server_truststore.p12
-    trust-store-password: changeit
-    trust-store-type: PKCS12
   client:
     hmac:
       algorithm: HmacSHA256
-      service-uuid: a7fd7728-a3ea-4975-bfab-f240a67e894f
-      shared-signing-key: 746573745365637265744b6579303031
