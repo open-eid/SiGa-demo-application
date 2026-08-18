@@ -19,7 +19,14 @@ management:
   endpoints:
     web:
       exposure:
-        include: prometheus
+        include:
+          - health
+          - prometheus
+  endpoint:
+    health:
+      show-details: ALWAYS
+      probes:
+        enabled: true
 
 siga:
   api:
